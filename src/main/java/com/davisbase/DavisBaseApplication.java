@@ -1,13 +1,14 @@
 package com.davisbase;
 
-import com.davisbase.services.MediatorService;
-import com.davisbase.services.PromptService;
+import com.davisbase.services.Mediator;
+import com.davisbase.services.Prompt;
 
 public class DavisBaseApplication {
 
 	public static void main(String[] args) {
-		PromptService promptService = new PromptService();
-		MediatorService mediatorService = new MediatorService();
+		Prompt promptService = new Prompt();
+		Mediator mediatorService = new Mediator();
+	
 	}
 
 }

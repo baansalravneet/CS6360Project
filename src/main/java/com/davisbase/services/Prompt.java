@@ -1,6 +1,6 @@
 package com.davisbase.services;
 
-public class PromptService {
+public class Prompt {
 
     private static final String PROMPT = "davisql>";
 
