@@ -2,7 +2,6 @@ package com.davisbase;
 
 import com.davisbase.config.Settings;
 import com.davisbase.services.CommandHandler;
-import com.davisbase.services.Component;
 import com.davisbase.services.DisplayManager;
 import com.davisbase.services.Mediator;
 import com.davisbase.services.Prompt;

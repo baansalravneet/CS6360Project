@@ -1,5 +1,7 @@
 package com.davisbase.services;
 
+import com.davisbase.commands.impl.ExitCommand;
+
 public class QueryParser extends Component {
 
     public QueryParser(Mediator mediator) {
@@ -7,6 +9,8 @@ public class QueryParser extends Component {
     }
 
     public void parseQuery(String input) {
-        System.out.println(input);
+        if (input.equals("EXIT")) {
+            mediator.notify(this, new ExitCommand());
+        }
     }
 }
