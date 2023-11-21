@@ -12,6 +12,7 @@ public interface Command {
  * DROP TABLE
  * CREATE INDEX
  * EXIT
+ * HELP
  * 
  * INSERT
  * DELETE

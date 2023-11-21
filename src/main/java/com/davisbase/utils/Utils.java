@@ -10,7 +10,7 @@ public class Utils {
 		System.out.println("Welcome to DavisBaseLite"); // Display the string.
 		System.out.println("DavisBaseLite Version " + Settings.VERSION);
 		System.out.println(Settings.COPYRIGHT);
-		System.out.println("\nType \"help;\" to display supported commands.");
+		System.out.println("\nType \"help\" to display supported commands.");
 		System.out.println(printSeparator("-", 80));
 	}
 
