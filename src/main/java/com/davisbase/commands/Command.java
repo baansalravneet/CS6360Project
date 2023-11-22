@@ -1,9 +1,7 @@
 package com.davisbase.commands;
 
 public interface Command {
-
     void execute();
-    
 }
 
 /*
@@ -11,6 +9,7 @@ public interface Command {
  * CREATE TABLE
  * DROP TABLE
  * CREATE INDEX
+ * 
  * EXIT
  * HELP
  * 

@@ -1,6 +1,10 @@
 package com.davisbase.services;
 
 import com.davisbase.commands.Command;
+import com.davisbase.services.components.Component;
+import com.davisbase.services.components.impl.CommandHandler;
+import com.davisbase.services.components.impl.DisplayManager;
+import com.davisbase.services.components.impl.QueryParser;
 
 // orchestrates multiple services 
 public class Mediator {

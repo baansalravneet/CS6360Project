@@ -1,8 +1,10 @@
-package com.davisbase.services;
+package com.davisbase.services.components.impl;
 
 import java.util.Scanner;
 
 import com.davisbase.config.Settings;
+import com.davisbase.services.Mediator;
+import com.davisbase.services.components.Component;
 
 public class Prompt extends Component {
     

@@ -1,4 +1,7 @@
-package com.davisbase.services;
+package com.davisbase.services.components.impl;
+
+import com.davisbase.services.Mediator;
+import com.davisbase.services.components.Component;
 
 public class DisplayManager extends Component {
     

@@ -1,7 +1,9 @@
-package com.davisbase.services;
+package com.davisbase.services.components.impl;
 
 import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
+import com.davisbase.services.Mediator;
+import com.davisbase.services.components.Component;
 
 public class QueryParser extends Component {
 
@@ -22,7 +24,7 @@ public class QueryParser extends Component {
                 mediator.notify(this, new HelpCommand());
                 break;
             default:
-                System.out.println("Not a valid query. Type \"help\" to display supported commands.");
+                System.out.println("Invalid query. Type \"help\" to display supported commands.");
         }
     }
 
