@@ -41,8 +41,8 @@ public class DavisBaseApplication {
 			promptService.showPrompt();
 		}
 	}
-	private static void initialise() throws FileNotFoundException {
-		Database.setTableTable(new Table(Settings.TABLES_TABLE));
+	private static void initialise() throws FileNotFoundException, IOException {
+		Database.setTablesTable(new Table(Settings.TABLES_TABLE));
 		Database.setColumnsTable(new Table(Settings.COLUMNS_TABLE));
 	}
 

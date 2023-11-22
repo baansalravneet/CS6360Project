@@ -3,7 +3,7 @@ package com.davisbase.config;
 import com.davisbase.models.Table;
 
 public class Database {
-    private static Table tableTable;
+    private static Table tablesTable;
     private static Table columnsTable;
 
     public static Table getColumnsTable() {
@@ -14,12 +14,12 @@ public class Database {
         Database.columnsTable = columnsTable;
     }
 
-    public static Table getTableTable() {
-        return tableTable;
+    public static Table getTablesTable() {
+        return tablesTable;
     }
 
-    public static void setTableTable(Table tablesTable) {
-        Database.tableTable = tablesTable;
+    public static void setTablesTable(Table tablesTable) {
+        Database.tablesTable = tablesTable;
     }
 
 }
