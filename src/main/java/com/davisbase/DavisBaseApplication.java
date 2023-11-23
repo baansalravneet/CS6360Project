@@ -29,7 +29,6 @@ public class DavisBaseApplication {
 		mediatorService.addCommandHandlerComponent(commandHandler);
 		mediatorService.addDisplayManagerComponent(displayManager);
 
-		// TODO: initialise meta-data tables
 		// create meta-data tables if they do not exist. Otherwise, read from file
 		initialise();
 
@@ -44,6 +43,7 @@ public class DavisBaseApplication {
 	private static void initialise() throws FileNotFoundException, IOException {
 		Database.setTablesTable(new Table(Settings.TABLES_TABLE));
 		Database.setColumnsTable(new Table(Settings.COLUMNS_TABLE));
+		// TOOD: if there are tables in the TablesTable, add those to the Database class
 	}
 
 }

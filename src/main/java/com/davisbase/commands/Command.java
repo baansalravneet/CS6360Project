@@ -1,7 +1,13 @@
 package com.davisbase.commands;
 
-public interface Command {
-    void execute();
+import com.davisbase.commands.output.CommandOutput;
+
+public abstract class Command {
+    private CommandContext context;
+    public Command(CommandContext context) {
+        this.context = context;
+    }
+    public abstract CommandOutput execute();
 }
 
 /*
