@@ -3,7 +3,7 @@ package com.davisbase.commands;
 import com.davisbase.commands.output.CommandOutput;
 
 public abstract class Command {
-    private CommandContext context;
+    protected CommandContext context;
     public Command(CommandContext context) {
         this.context = context;
     }

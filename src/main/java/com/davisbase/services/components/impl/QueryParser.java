@@ -1,7 +1,10 @@
 package com.davisbase.services.components.impl;
 
+import java.util.regex.Pattern;
+
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
+import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
 import com.davisbase.commands.impl.InvalidCommand;
@@ -10,8 +13,9 @@ import com.davisbase.services.components.Component;
 
 public class QueryParser extends Component {
 
-    private static final String EXIT = "exit";
-    private static final String HELP = "help";
+    private static final String EXIT = "^exit\\s?.*";
+    private static final String HELP = "^help\\s?.*";
+    private static final String CREATE_TABLE = "^create table\\s?.*";
 
     public QueryParser(Mediator mediator) {
         super(mediator);
@@ -27,9 +31,13 @@ public class QueryParser extends Component {
     }
 
     private Command generateCommand(String input) {
-        String[] keywords = input.split(" ");
-        if (HELP.equals(keywords[0])) return new HelpCommand(null);
-        if (EXIT.equals(keywords[0])) return new ExitCommand(null);
-        return new InvalidCommand(new CommandContext());
+        if (input.matches(HELP)) return new HelpCommand(null);
+        if (input.matches(EXIT)) return new ExitCommand(null);
+        if (input.matches(CREATE_TABLE)) return generateCreateTableCommand(input);
+        return new InvalidCommand(null);
+    }
+    
+    private Command generateCreateTableCommand(String input) {
+        return new CreateTableCommand(null);
     }
 }
