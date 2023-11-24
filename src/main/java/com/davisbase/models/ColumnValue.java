@@ -1,7 +1,5 @@
 package com.davisbase.models;
 
-import javax.xml.crypto.Data;
-
 import com.davisbase.utils.Utils;
 
 public class ColumnValue {
