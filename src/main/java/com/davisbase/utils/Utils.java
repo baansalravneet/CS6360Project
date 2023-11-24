@@ -22,4 +22,24 @@ public class Utils {
 		return bar;
 	}
 
+	public static byte[] integerToByteArray(int i) {
+		byte[] byteArray = new byte[4];
+        byteArray[0] = (byte) (i >> 24);
+        byteArray[1] = (byte) (i >> 16);
+        byteArray[2] = (byte) (i >> 8);
+        byteArray[3] = (byte) i;
+        return byteArray;
+	}
+
+	public static byte[] stringToByteArray(String s) {
+		return s.getBytes();
+	}
+
+	public static byte[] shortToByteArray(short i) {
+		byte[] byteArray = new byte[2];
+        byteArray[0] = (byte) (i >> 8);
+        byteArray[1] = (byte) i;
+		return byteArray;
+	}
+
 }

@@ -37,6 +37,7 @@ public class QueryParser extends Component {
         return new InvalidCommand(null);
     }
     
+    // TODO: complete this
     private Command generateCreateTableCommand(String input) {
         return new CreateTableCommand(null);
     }

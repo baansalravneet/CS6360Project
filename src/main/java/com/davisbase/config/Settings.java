@@ -7,6 +7,7 @@ public class Settings {
 	public static final int PAGE_SIZE = 512;
 	public static final String TABLES_TABLE_FILE_NAME = "davisbase_tables.tbl";
 	public static final String COLUMNS_TABLE_FILE_NAME = "davisbase_columns.tbl";
+	public static final String TABLE_FILE_EXTENSION = ".tbl";
 	
 	private static boolean exit;
 
