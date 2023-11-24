@@ -4,18 +4,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.davisbase.config.Settings;
 import com.davisbase.utils.Utils;
 
+/* 
+ * FILE HEADER PAGE
+ * 0x00 - PAGE TYPE = 0x07
+ * 0x01 - ROOT PAGE NUMBER (1 indexed)
+ * 0x05 - LAST ROW ID
+ */
 public class Table extends RandomAccessFile {
 
     private static final byte FILE_HEADER_PAGE_TYPE = 0x07;
     private static final long FILE_HEADER_PAGE_TYPE_OFFSET = 0x00;
-    private static final long ROOT_PAGE_NUMBER_OFFSET = 0x01; // Page numbers are 1 indexed
-    private static final int ROW_ID_OFFSET = 0x09;
+    private static final long ROOT_PAGE_NUMBER_OFFSET = 0x01;
+    private static final int ROW_ID_OFFSET = 0x05;
     private static final long PAGE_HEADER_CONTENT_START_OFFSET = 0x04;
     private static final byte TABLE_TREE_LEAF_PAGE = 0x0D;
     private static final long RIGHT_SIBLING_OFFSET = 0x06;

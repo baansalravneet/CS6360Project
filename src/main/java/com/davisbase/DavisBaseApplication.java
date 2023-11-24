@@ -34,6 +34,16 @@ public class DavisBaseApplication {
 		// create meta-data tables if they do not exist. Otherwise, read from file
 		initialise();
 
+		CommandContext c = new CommandContext();
+		c.setTableName("something");
+		CreateTableCommand command = new CreateTableCommand(c);
+		command.execute();
+
+		c = new CommandContext();
+		c.setTableName("somethingelse");
+		command = new CreateTableCommand(c);
+		command.execute();
+
 		// splash screen
 		Utils.splashScreen();
 
