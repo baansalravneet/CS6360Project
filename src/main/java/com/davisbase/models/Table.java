@@ -14,6 +14,7 @@ import com.davisbase.utils.Utils;
  * 0x01 - ROOT PAGE NUMBER (1 indexed)
  * 0x05 - LAST ROW ID
  */
+// ALWAYS SEEK BEFORE YOU READ OR WRITE
 public class Table extends RandomAccessFile {
 
     private static final byte FILE_HEADER_PAGE_TYPE = 0x07;
@@ -27,20 +28,19 @@ public class Table extends RandomAccessFile {
     private static final long PARENT_PAGE_POINTER_OFFSET = 0x0A;
     private static final int NULL_PARENT = -1;
     private static final long PAGE_HEADER_NUMBER_OF_ROWS_OFFSET = 0x02;
+    private static final int PAGE_HEADER_SIZE = 16;
 
-    // TODO: add page header with the constructor 
     // TODO: handle exceptions
     public Table(String name) throws FileNotFoundException, IOException {
         super(new File(name), "rw");
         writeFileHeaderPage();
     }
-    
+
     private void writeFileHeaderPage() throws IOException {
         this.setLength(Settings.PAGE_SIZE);
 
         this.seek(FILE_HEADER_PAGE_TYPE_OFFSET);
         this.writeByte(FILE_HEADER_PAGE_TYPE);
-
 
         int rootPageNumber = addPage();
         setPageAsRoot(rootPageNumber);
@@ -60,61 +60,79 @@ public class Table extends RandomAccessFile {
     private int addPage() throws IOException {
         int pages = (int) (this.length() / Settings.PAGE_SIZE) + 1;
         this.setLength(Settings.PAGE_SIZE * pages);
-        this.seek((pages-1) * Settings.PAGE_SIZE);
+        this.seek((pages - 1) * Settings.PAGE_SIZE);
         this.writeByte(TABLE_TREE_LEAF_PAGE);
 
-        this.seek((pages-1) * Settings.PAGE_SIZE + PAGE_HEADER_CONTENT_START_OFFSET);
+        this.seek((pages - 1) * Settings.PAGE_SIZE + PAGE_HEADER_CONTENT_START_OFFSET);
         this.writeShort(Settings.PAGE_SIZE);
 
-        this.seek((pages-1) * Settings.PAGE_SIZE + RIGHT_SIBLING_OFFSET);
+        this.seek((pages - 1) * Settings.PAGE_SIZE + RIGHT_SIBLING_OFFSET);
         this.writeInt(NULL_RIGHT_SIBLING);
 
         return pages;
     }
 
     /*
-    * 1. get next row id
-    * 2. increment row id in the meta page
-    * 3. add this row id to the cell
-    * 4. find the rightmost leaf page
-    * 4.1. go to the root page
-    * 4.2. keep going towards the right until you find null
-    * 5. check if this page would overflow
-    * 5.1. if yes, then split it.
-    * 6. find where the cell content would go and put it there
-    * 7. change the related header info.
-    */
+     * 1. get next row id
+     * 2. increment row id in the meta page
+     * 3. add this row id to the cell
+     * 4. find the rightmost leaf page
+     * 4.1. go to the root page
+     * 4.2. keep going towards the right until you find null
+     * 5. check if this page would overflow
+     * 5.1. if yes, then split it.
+     * 6. find where the cell content would go and put it there
+     * 7. change the related header info.
+     */
     // TODO
     public void addRow(TableRow row) throws IOException {
         int nextRowId = getNextRowId();
         incrementFileHeaderRowId(nextRowId);
 
         byte[] payload = row.getRowBytesWithRecordHeader();
-        short payloadSize = (short)payload.length;
+        short payloadSize = (short) payload.length;
 
         byte[] cell = Utils.prepend(payload, nextRowId);
         cell = Utils.prepend(cell, payloadSize);
 
         int rightmostLeafPageNumber = getRightMostLeafPageNumber(getRootPageNumber());
-        // TODO: check overflow
+        if (checkOverflow(rightmostLeafPageNumber, cell.length)) {
+            // TODO check if the B+ tree also needs to be balanced
+            rightmostLeafPageNumber = addPage();
+        }
         writeCellInPage(cell, rightmostLeafPageNumber);
+    }
 
-
+    private boolean checkOverflow(int pageNumber, int cellLength) throws IOException {
+        long pageOffset = (pageNumber - 1) * Settings.PAGE_SIZE;
+        return false;
     }
 
     private void writeCellInPage(byte[] cell, int pageNumber) throws IOException {
         long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
         int pageOffsetForCell = getPageOffsetForNewCell(fileOffset, cell.length);
+
+        // write the cell
         this.seek(fileOffset + pageOffsetForCell);
         this.write(cell);
-
+        
+        // update the content start offset
         this.seek(fileOffset + PAGE_HEADER_CONTENT_START_OFFSET);
         this.writeShort(pageOffsetForCell);
 
+        // update the number of rows in the page header
         this.seek(fileOffset + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
         short numberOfRows = this.readShort();
         this.seek(fileOffset + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
         this.writeShort(numberOfRows + 1);
+
+        // write cell start offset
+        this.seek(fileOffset + getCellStartOffset(numberOfRows));
+        this.writeShort(pageOffsetForCell);
+    }
+    
+    private long getCellStartOffset(int numberOfRows) {
+        return PAGE_HEADER_SIZE + numberOfRows * 2;
     }
 
     private int getPageOffsetForNewCell(long fileOffset, int cellLength) throws IOException {
@@ -136,7 +154,7 @@ public class Table extends RandomAccessFile {
         this.seek(ROOT_PAGE_NUMBER_OFFSET);
         return this.readInt();
     }
-    
+
     private void incrementFileHeaderRowId(int rowId) throws IOException {
         this.seek(ROW_ID_OFFSET);
         this.writeInt(rowId);
@@ -148,7 +166,8 @@ public class Table extends RandomAccessFile {
         return rows + 1;
     }
 
-    // TODO: B+Tree traversal including creating new page, extending file, and tree rebalancing
+    // TODO: B+Tree traversal including creating new page, extending file, and tree
+    // rebalancing
     private long getFileOffsetPage() throws IOException {
         this.setLength(1024);
         return 512;
