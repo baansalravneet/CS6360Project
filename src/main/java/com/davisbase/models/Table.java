@@ -98,14 +98,22 @@ public class Table extends RandomAccessFile {
         int rightmostLeafPageNumber = getRightMostLeafPageNumber(getRootPageNumber());
         if (checkOverflow(rightmostLeafPageNumber, cell.length)) {
             // TODO check if the B+ tree also needs to be balanced
+            // TODO more B+ tree stuff
             rightmostLeafPageNumber = addPage();
         }
         writeCellInPage(cell, rightmostLeafPageNumber);
     }
 
+    // TODO: Pending
     private boolean checkOverflow(int pageNumber, int cellLength) throws IOException {
         long pageOffset = (pageNumber - 1) * Settings.PAGE_SIZE;
-        return false;
+        this.seek(pageOffset + PAGE_HEADER_CONTENT_START_OFFSET);
+        short contentStart = this.readShort();
+        this.seek(pageOffset + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
+        short numberOfRows = this.readShort();
+        int emptySpace = contentStart - numberOfRows * 2 - PAGE_HEADER_SIZE;
+        System.out.println(emptySpace);
+        return emptySpace < cellLength + 2; // 2 bytes for the cell offset
     }
 
     private void writeCellInPage(byte[] cell, int pageNumber) throws IOException {
