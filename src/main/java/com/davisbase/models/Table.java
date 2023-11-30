@@ -128,15 +128,12 @@ public class Table extends RandomAccessFile {
             parentPage = addInteriorPage();
             setPageAsRoot(parentPage);
             setParentOfPage(pageNumber, parentPage);
-            setParentOfPage(newLeafPage, parentPage);
-            setRightSibling(parentPage, newLeafPage);
-            // TODO handle case for overflow in the interior page
-            writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - rowsMoved - 1), parentPage);
-            return newLeafPage;
-        } else {
-            // TODO
-            return 0;
         }
+        setParentOfPage(newLeafPage, parentPage);
+        setRightSibling(parentPage, newLeafPage);
+        // TODO handle case for overflow in the interior page
+        writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - rowsMoved - 1), parentPage);
+        return newLeafPage;
     }
 
     private int moveHalf(int pageA, int pageB) throws IOException {
