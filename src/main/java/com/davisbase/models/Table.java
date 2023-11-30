@@ -248,17 +248,6 @@ public class Table extends RandomAccessFile {
         return (int) (newLength / Settings.PAGE_SIZE);
     }
 
-    private byte getPageType(int pageNumber) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber));
-        return this.readByte();
-    }
-
-    private boolean isRootPage(int pageNumber) throws IOException {
-        long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
-        this.seek(fileOffset + PARENT_PAGE_POINTER_OFFSET);
-        return this.readInt() == -1;
-    }
-
     private boolean checkOverflow(int pageNumber, int cellLength) throws IOException {
         long pageOffset = (pageNumber - 1) * Settings.PAGE_SIZE;
         this.seek(pageOffset + PAGE_HEADER_CONTENT_START_OFFSET);
@@ -326,13 +315,6 @@ public class Table extends RandomAccessFile {
         this.seek(ROW_ID_OFFSET);
         int rows = this.readInt();
         return rows + 1;
-    }
-
-    // TODO: B+Tree traversal including creating new page, extending file, and tree
-    // rebalancing
-    private long getFileOffsetPage() throws IOException {
-        this.setLength(1024);
-        return 512;
     }
 
 }

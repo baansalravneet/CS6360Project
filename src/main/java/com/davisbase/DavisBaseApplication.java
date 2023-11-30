@@ -3,8 +3,6 @@ package com.davisbase;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.config.Database;
 import com.davisbase.config.Settings;
 import com.davisbase.models.Table;

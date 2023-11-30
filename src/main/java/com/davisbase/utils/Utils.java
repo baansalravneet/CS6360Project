@@ -23,12 +23,26 @@ public class Utils {
 	}
 
 	public static byte[] integerToByteArray(int i) {
-		byte[] byteArray = new byte[4];
-		byteArray[0] = (byte) (i >> 24);
-		byteArray[1] = (byte) (i >> 16);
-		byteArray[2] = (byte) (i >> 8);
-		byteArray[3] = (byte) i;
-		return byteArray;
+		return new byte[] {
+				(byte) (i >> 24),
+				(byte) (i >> 16),
+				(byte) (i >> 8),
+				(byte) i
+		};
+	}
+
+	public static byte[] bigintToByteArray(long i) {
+		return new byte[] {
+				(byte) (i >> 64),
+				(byte) (i >> 56),
+				(byte) (i >> 48),
+				(byte) (i >> 40),
+				(byte) (i >> 32),
+				(byte) (i >> 24),
+				(byte) (i >> 16),
+				(byte) (i >> 8),
+				(byte) i
+		};
 	}
 
 	public static byte[] stringToByteArray(String s) {
@@ -36,10 +50,24 @@ public class Utils {
 	}
 
 	public static byte[] shortToByteArray(short i) {
-		byte[] byteArray = new byte[2];
-		byteArray[0] = (byte) (i >> 8);
-		byteArray[1] = (byte) i;
-		return byteArray;
+		return new byte[] {
+				(byte) (i >> 8),
+				(byte) i
+		};
+	}
+
+	public static byte[] tinyintToByteArray(byte i) {
+		return new byte[] { i };
+	}
+
+	// TODO
+	public static byte[] doubleToByteArray(double i) {
+		return new byte[] {};
+	}
+
+	// TODO
+	public static byte[] floatToByteArray(double i) {
+		return new byte[] {};
 	}
 
 	public static byte[] prepend(byte[] arr, int i) {

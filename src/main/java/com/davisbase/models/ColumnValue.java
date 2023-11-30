@@ -20,13 +20,29 @@ public class ColumnValue {
     }
 
     public byte[] getBytes() {
-        if (DataType.INT.equals(dataType)) {
-            return Utils.integerToByteArray((Integer) value);
+        switch(dataType) {
+            case INT:
+                return Utils.integerToByteArray((Integer) value);
+            case TEXT:
+                return Utils.stringToByteArray((String) value);
+            case TINYINT:
+                return Utils.tinyintToByteArray((Byte) value);
+            case SMALLINT:
+                return Utils.shortToByteArray((Short) value);
+            case BIGINT:
+                return Utils.bigintToByteArray((Long) value);
+            case FLOAT:
+                return Utils.floatToByteArray((Float) value);
+            case DOUBLE:
+                return Utils.doubleToByteArray((Double) value);
+            case YEAR:
+            case TIME:
+            case DATETIME:
+            case DATE:
+            default:
+                // TODO: throw some error here
+                return new byte[0];
         }
-        if (DataType.TEXT.equals(dataType)) {
-            return Utils.stringToByteArray((String) value);
-        }
-        return new byte[1];
     }
 
     public byte getRecordHeader() {
