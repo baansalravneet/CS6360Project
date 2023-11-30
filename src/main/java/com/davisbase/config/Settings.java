@@ -8,6 +8,7 @@ public class Settings {
 	public static final String TABLES_TABLE_FILE_NAME = "davisbase_tables.tbl";
 	public static final String COLUMNS_TABLE_FILE_NAME = "davisbase_columns.tbl";
 	public static final String TABLE_FILE_EXTENSION = ".tbl";
+	public static final String INDEX_FILE_EXTENSION = ".ndx";
 	
 	private static boolean exit;
 

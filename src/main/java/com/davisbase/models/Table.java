@@ -37,72 +37,20 @@ import com.davisbase.utils.Utils;
  */
 
 // ALWAYS SEEK BEFORE YOU READ OR WRITE
-public class Table extends RandomAccessFile {
+public class Table extends DatabaseFile {
 
-    private static final byte FILE_HEADER_PAGE_TYPE = 0x07;
-    private static final long FILE_HEADER_PAGE_TYPE_OFFSET = 0x00;
-    private static final long ROOT_PAGE_NUMBER_OFFSET = 0x01;
     private static final int ROW_ID_OFFSET = 0x05;
-    private static final long PAGE_HEADER_CONTENT_START_OFFSET = 0x04;
-    private static final byte TABLE_TREE_LEAF_PAGE = 0x0D;
     private static final byte TABLE_TREE_INTERIOR_PAGE = 0x05;
-    private static final long RIGHT_SIBLING_OFFSET = 0x06;
-    private static final int NULL_RIGHT_SIBLING = -1;
-    private static final long PARENT_PAGE_POINTER_OFFSET = 0x0A;
-    private static final int NULL_PARENT = -1;
     private static final long PAGE_HEADER_NUMBER_OF_ROWS_OFFSET = 0x02;
     private static final int PAGE_HEADER_SIZE = 16;
 
     // TODO: handle exceptions
     public Table(String name) throws FileNotFoundException, IOException {
-        super(new File(name), "rw");
-        writeFileHeaderPage();
+        super(name);
     }
 
     public Table(File file) throws FileNotFoundException {
-        super(file, "rw");
-    }
-
-    private void writeFileHeaderPage() throws IOException {
-        this.setLength(Settings.PAGE_SIZE);
-
-        this.seek(FILE_HEADER_PAGE_TYPE_OFFSET);
-        this.writeByte(FILE_HEADER_PAGE_TYPE);
-
-        int rootPageNumber = addLeafPage();
-        setPageAsRoot(rootPageNumber);
-    }
-
-    private void setPageAsRoot(int pageNumber) throws IOException {
-        this.seek((pageNumber - 1) * Settings.PAGE_SIZE + PARENT_PAGE_POINTER_OFFSET);
-        this.writeInt(NULL_PARENT);
-        setRootPageInFileHeader(pageNumber);
-    }
-
-    private void setRootPageInFileHeader(int pageNumber) throws IOException {
-        this.seek(ROOT_PAGE_NUMBER_OFFSET);
-        this.writeInt(pageNumber);
-    }
-
-    private int addLeafPage() throws IOException {
-        int pages = (int) (this.length() / Settings.PAGE_SIZE) + 1;
-
-        // increase the length of the file
-        this.setLength(Settings.PAGE_SIZE * pages);
-
-        // add the page type
-        this.seek((pages - 1) * Settings.PAGE_SIZE);
-        this.writeByte(TABLE_TREE_LEAF_PAGE);
-
-        // set the content start offset
-        this.seek((pages - 1) * Settings.PAGE_SIZE + PAGE_HEADER_CONTENT_START_OFFSET);
-        this.writeShort(Settings.PAGE_SIZE);
-
-        // set right sibling offset
-        this.seek((pages - 1) * Settings.PAGE_SIZE + RIGHT_SIBLING_OFFSET);
-        this.writeInt(NULL_RIGHT_SIBLING);
-
-        return pages;
+        super(file);
     }
 
     public void addRow(TableRow row) throws IOException {
@@ -208,32 +156,12 @@ public class Table extends RandomAccessFile {
         return cell;
     }
 
-    private int getParentPage(int pageNumber) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PARENT_PAGE_POINTER_OFFSET);
-        return this.readInt();
-    }
-
-    private void setRightSibling(int pageNumber, int siblingPageNumber) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + RIGHT_SIBLING_OFFSET);
-        this.writeInt(siblingPageNumber);
-    }
-
-    private void setParentOfPage(int pageNumber, int parentPageNumber) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PARENT_PAGE_POINTER_OFFSET);
-        this.writeInt(parentPageNumber);
-    }
-    
     private int addInteriorPage() throws IOException {
         int newPageNumber = extendFileByOnePage();
         setPageType(newPageNumber, TABLE_TREE_INTERIOR_PAGE);
         setEmptyPageStartContent(newPageNumber);
         setRightmostChildNull(newPageNumber);
         return newPageNumber;
-    }
-
-    private void setRightmostChildNull(int pageNumber) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + RIGHT_SIBLING_OFFSET);
-        this.writeInt(NULL_RIGHT_SIBLING);
     }
 
     private void setEmptyPageStartContent(int pageNumber) throws IOException {
@@ -294,20 +222,6 @@ public class Table extends RandomAccessFile {
         this.seek(contentStartOffset);
         short contentStart = this.readShort();
         return contentStart - cellLength;
-    }
-
-    private int getRightmostLeafPageNumber(int pageNumber) throws IOException {
-        long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
-        this.seek(fileOffset + RIGHT_SIBLING_OFFSET);
-        int next = this.readInt();
-        if (next != -1)
-            return getRightmostLeafPageNumber(next);
-        return pageNumber;
-    }
-
-    private int getRootPageNumber() throws IOException {
-        this.seek(ROOT_PAGE_NUMBER_OFFSET);
-        return this.readInt();
     }
 
     private void incrementFileHeaderRowId(int rowId) throws IOException {
