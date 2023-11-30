@@ -59,6 +59,10 @@ public class Table extends RandomAccessFile {
         writeFileHeaderPage();
     }
 
+    public Table(File file) throws FileNotFoundException {
+        super(file, "rw");
+    }
+
     private void writeFileHeaderPage() throws IOException {
         this.setLength(Settings.PAGE_SIZE);
 

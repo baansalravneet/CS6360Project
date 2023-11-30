@@ -11,6 +11,7 @@ import com.davisbase.models.TableRow;
 public class CommandContext {
     private String tableName;
     private List<ColumnDefinition> columnContext;
+    private List<ColumnValue> columnValues;
 
     public String getTableName() {
         return tableName;
@@ -47,5 +48,13 @@ public class CommandContext {
             result.add(row);
         }
         return result;
+    }
+
+    public TableRow getInsertRow() {
+        TableRow row = new TableRow();
+        for (ColumnValue v : this.columnValues) {
+            row.appendValue(v);
+        }
+        return row;
     }
 }
