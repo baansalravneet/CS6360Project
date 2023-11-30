@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.davisbase.config.Settings;
 import com.davisbase.utils.Utils;
@@ -24,8 +26,8 @@ import com.davisbase.utils.Utils;
  * 0x0E - short unused
  * 
  * CELL HEADER
- * int - left child page number
- * short - cell payload size
+ * LEAF
+ * short - payload size
  * int - row id
  * 
  * RECORD HEADER
@@ -99,19 +101,6 @@ public class Table extends RandomAccessFile {
         return pages;
     }
 
-    /*
-     * 1. get next row id
-     * 2. increment row id in the meta page
-     * 3. add this row id to the cell
-     * 4. find the rightmost leaf page
-     * 4.1. go to the root page
-     * 4.2. keep going towards the right until you find null
-     * 5. check if this page would overflow
-     * 5.1. if yes, then split it.
-     * 6. find where the cell content would go and put it there
-     * 7. change the related header info.
-     */
-    // TODO
     public void addRow(TableRow row) throws IOException {
         int nextRowId = getNextRowId();
         incrementFileHeaderRowId(nextRowId);
@@ -124,8 +113,6 @@ public class Table extends RandomAccessFile {
 
         int rightmostLeafPageNumber = getRightmostLeafPageNumber(getRootPageNumber());
         if (checkOverflow(rightmostLeafPageNumber, cell.length)) {
-            // TODO check if the B+ tree also needs to be balanced
-            // TODO more B+ tree stuff
             rightmostLeafPageNumber = appendNewLeaf(rightmostLeafPageNumber, nextRowId);
         }
         writeCellInPage(cell, rightmostLeafPageNumber);
@@ -134,6 +121,7 @@ public class Table extends RandomAccessFile {
     private int appendNewLeaf(int pageNumber, int nextRowId) throws IOException {
         int newLeafPage = addLeafPage();
         setRightSibling(pageNumber, newLeafPage);
+        int rowsMoved = moveHalf(pageNumber, newLeafPage);
     
         int parentPage = getParentPage(pageNumber);
         if (parentPage == -1) {
@@ -142,13 +130,74 @@ public class Table extends RandomAccessFile {
             setParentOfPage(pageNumber, parentPage);
             setParentOfPage(newLeafPage, parentPage);
             setRightSibling(parentPage, newLeafPage);
-            getInteriorPageCell(pageNumber, nextRowId);
-            writeCellInPage(getInteriorPageCell(pageNumber, nextRowId), parentPage);
+            // TODO handle case for overflow in the interior page
+            writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - rowsMoved - 1), parentPage);
             return newLeafPage;
         } else {
             // TODO
             return 0;
         }
+    }
+
+    private int moveHalf(int pageA, int pageB) throws IOException {
+        int numberOfRowsInPage = getNumberOfRowsInPage(pageA);
+        List<byte[]> cells = new ArrayList<>();
+        for (int cellNumber = numberOfRowsInPage; cellNumber > numberOfRowsInPage / 2; cellNumber--) {
+            byte[] cell = getCellByCellNumber(pageA, cellNumber);
+            cells.add(0, cell);
+            removeCellByCellNumber(pageA, cellNumber);
+        }
+        for (byte[] cell : cells) {
+            writeCellInPage(cell, pageB);
+        }
+        return cells.size();
+    }
+
+    private void removeCellByCellNumber(int pageNumber, int cellNumber) throws IOException {
+        long pageOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
+        long cellOffsetOffset = getCellStartOffset(cellNumber - 1);
+        this.seek(pageOffset + cellOffsetOffset);
+        short cellOffset = this.readShort();
+        this.seek(pageOffset + cellOffset);
+        short cellSize = this.readShort();
+        byte[] result = new byte[cellSize + 4 + 2];
+        this.seek(pageOffset + cellOffset);
+        this.write(result);
+        this.seek(pageOffset + cellOffsetOffset);
+        this.writeShort(0);
+        decrementNumberOfCellsOnPage(pageNumber);
+        this.seek(pageOffset + getCellStartOffset(cellNumber-2));
+        short newContentOffset = this.readShort();
+        setContentStartOffset(pageNumber, newContentOffset);
+    }
+
+    private void setContentStartOffset(int pageNumber, short offset) throws IOException {
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PAGE_HEADER_CONTENT_START_OFFSET);
+        this.writeShort(offset);
+    }
+
+    private void decrementNumberOfCellsOnPage(int pageNumber) throws IOException {
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
+        short numberOfRows = (short)(this.readShort() - 1);
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
+        this.writeShort(numberOfRows);
+    }
+    
+    private byte[] getCellByCellNumber(int pageNumber, int cellNumber) throws IOException {
+        long pageOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
+        this.seek(pageOffset + getCellStartOffset(cellNumber-1));
+        short cellOffset = this.readShort();
+        this.seek(pageOffset + cellOffset);
+        short cellSize = this.readShort();
+        byte[] result = new byte[cellSize + 4 + 2];
+        this.seek(pageOffset + cellOffset);
+        this.read(result);
+        return result;
+    }
+
+    private int getNumberOfRowsInPage(int pageNumber) throws IOException {
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + PAGE_HEADER_NUMBER_OF_ROWS_OFFSET);
+        return this.readShort();
     }
 
     private byte[] getInteriorPageCell(int leftChildPageNumber, int rowId) {
@@ -173,10 +222,6 @@ public class Table extends RandomAccessFile {
         this.writeInt(parentPageNumber);
     }
     
-    private void splitInteriorPage() {
-        // TODO
-    }
-
     private int addInteriorPage() throws IOException {
         int newPageNumber = extendFileByOnePage();
         setPageType(newPageNumber, TABLE_TREE_INTERIOR_PAGE);
