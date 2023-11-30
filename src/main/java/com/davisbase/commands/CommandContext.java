@@ -42,8 +42,9 @@ public class CommandContext {
             row.appendValue(new ColumnValue(DataType.TEXT, this.getTableName()));
             row.appendValue(new ColumnValue(DataType.TEXT, column.getName()));
             row.appendValue(new ColumnValue(DataType.TEXT, column.getDataType().toString()));
-            row.appendValue(new ColumnValue(DataType.TINYINT, i+1));
+            row.appendValue(new ColumnValue(DataType.TINYINT, (byte)(i+1)));
             row.appendValue(new ColumnValue(DataType.TEXT, column.isNullable() ? "YES" : "NO"));
+            result.add(row);
         }
         return result;
     }

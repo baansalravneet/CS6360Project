@@ -1,9 +1,6 @@
 package com.davisbase.services.components.impl;
 
-import java.util.regex.Pattern;
-
 import com.davisbase.commands.Command;
-import com.davisbase.commands.CommandContext;
 import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
