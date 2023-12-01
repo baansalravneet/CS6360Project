@@ -95,7 +95,7 @@ public class Utils {
 	}
 
 	public static long getFileOffsetFromPageNumber(int pageNumber) {
-		return (long) Settings.PAGE_SIZE * (pageNumber - 1);
+		return (long) Settings.PAGE_SIZE * pageNumber;
 	}
 
 }
