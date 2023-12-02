@@ -15,8 +15,7 @@ public class InsertOutput extends DMLOutput {
 			System.out.printf("Successfully Inserted %d records",this.getNumberOfRecords());
 		}else {
 			System.out.println("Insert Operation failed");
-		}
-		
+		}		
 	}
     
 }
