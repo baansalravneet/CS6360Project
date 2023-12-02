@@ -83,6 +83,16 @@ public class Utils {
 		return byteArray;
 	}
 
+	public static byte[] prepend(byte[] arr, byte i) {
+		byte[] byteArray = new byte[arr.length + 1];
+		byteArray[0] = i;
+		int index = 1;
+		for (byte b : arr) {
+			byteArray[index++] = b;
+		}
+		return byteArray;
+	}
+
 	public static byte[] prepend(byte[] arr, short i) {
 		byte[] byteArray = new byte[arr.length + 2];
 		byteArray[0] = (byte) (i >> 8);

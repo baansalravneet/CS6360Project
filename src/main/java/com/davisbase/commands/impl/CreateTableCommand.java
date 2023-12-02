@@ -25,9 +25,9 @@ public class CreateTableCommand extends Command {
             tablesTableRow.appendValue(new ColumnValue(DataType.TEXT, context.getTableName()));
             Database.getTablesTable().addRow(tablesTableRow);
             
-            // for (TableRow row : context.getColumnsTableRows()) {
-            //     Database.getColumnsTable().addRow(row);
-            // }
+            for (TableRow row : context.getColumnsTableRows()) {
+                Database.getColumnsTable().addRow(row);
+            }
         } catch (IOException e) {
             // TODO: fix this
             e.printStackTrace();

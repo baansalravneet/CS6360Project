@@ -47,18 +47,6 @@ public abstract class DatabaseFile extends RandomAccessFile {
         this.writeShort(rootPageNumber);
     }
 
-    protected short addLeafPage() throws IOException {
-        short newPage = extendFileByOnePage();
-
-        // set the content start offset
-        setEmptyPageStartContent(newPage);
-
-        // set right sibling offset
-        setRightSibling(newPage, NULL_RIGHT_SIBLING);
-
-        return newPage;
-    }
-
     protected short getContentStartOffset(short pageNumber) throws IOException {
         this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + CONTENT_START_OFFSET);
         return this.readShort();
@@ -72,14 +60,6 @@ public abstract class DatabaseFile extends RandomAccessFile {
     protected short getRootPageNumber() throws IOException {
         this.seek(ROOT_PAGE_OFFSET);
         return this.readShort();
-    }
-
-    // recursive method to find the rightmost leaf page
-    protected short getRightmostLeafPage(short rootPage) throws IOException {
-        short next = getRightSibling(rootPage);
-        if (next != -1)
-            return getRightmostLeafPage(next);
-        return rootPage;
     }
 
     protected short getRightSibling(short page) throws IOException {
@@ -135,8 +115,9 @@ public abstract class DatabaseFile extends RandomAccessFile {
         this.writeShort(offset);
     }
 
-    protected long getCellStartOffset(int numberOfRows) {
-        return PAGE_HEADER_SIZE + numberOfRows * 2;
+    protected short getCellStartOffsetInPage(int cellNumber) throws IOException {
+        this.seek(PAGE_HEADER_SIZE + cellNumber * 2);
+        return this.readShort();
     }
 
 }
