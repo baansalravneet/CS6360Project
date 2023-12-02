@@ -1,14 +1,22 @@
 package com.davisbase.commands.output.impl;
 
-import com.davisbase.commands.output.CommandOutput;
+import com.davisbase.commands.output.DMLOutput;
 
 // TODO complete this
-public class InsertOutput extends CommandOutput {
+public class InsertOutput extends DMLOutput {
 
-    @Override
-    public void display() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'display'");
-    }
+    public InsertOutput(boolean status, int numberOfRecords) {
+		super(status, numberOfRecords);
+	}
+
+	@Override
+	public void display() {
+		if(this.getStatus()) {
+			System.out.printf("Successfully Inserted %d records",this.getNumberOfRecords());
+		}else {
+			System.out.println("Insert Operation failed");
+		}
+		
+	}
     
 }

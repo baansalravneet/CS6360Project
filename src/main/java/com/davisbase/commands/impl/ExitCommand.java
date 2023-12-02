@@ -8,13 +8,19 @@ import com.davisbase.config.Settings;
 
 public class ExitCommand extends Command {
 
-    public ExitCommand(CommandContext context) {
-        super(context);
-    }
+	public ExitCommand(CommandContext context) {
+		super(context);
+	}
 
-    @Override
-    public CommandOutput execute() {
-        Settings.setExit(true);
-        return new ExitOutput();
-    }
+	@Override
+	public CommandOutput execute() {
+		CommandOutput output;
+		try {
+			Settings.setExit(true);
+			output = new ExitOutput(true);
+		} catch (Exception ex) {
+			output = new ExitOutput(false);
+		}
+		return output;
+	}
 }

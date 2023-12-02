@@ -33,7 +33,7 @@ public class InsertCommand extends Command {
             System.out.println(e);
         }
         // TODO return appropriate result
-        return new InsertOutput();
+        return new InsertOutput(true, 10);
     }
 
 }
