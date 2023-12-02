@@ -3,6 +3,9 @@ package com.davisbase;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.davisbase.commands.Command;
+import com.davisbase.commands.CommandContext;
+import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.config.Database;
 import com.davisbase.config.Settings;
 import com.davisbase.models.Table;
@@ -32,6 +35,62 @@ public class DavisBaseApplication {
 		// create meta-data tables if they do not exist. Otherwise, read from file
 		initialise();
 
+		CommandContext c = new CommandContext();
+		c.setTableName("something");
+		Command command = new CreateTableCommand(c);
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+		command.execute();
+
+
 		// splash screen
 		Utils.splashScreen();
 
@@ -41,8 +100,8 @@ public class DavisBaseApplication {
 		}
 	}
 	private static void initialise() throws FileNotFoundException, IOException {
-		Database.setTablesTable(new Table(Settings.TABLES_TABLE_FILE_NAME));
-		Database.setColumnsTable(new Table(Settings.COLUMNS_TABLE_FILE_NAME));
+		Database.setTablesTable(new Table(Settings.TABLES_TABLE));
+		Database.setColumnsTable(new Table(Settings.COLUMNS_TABLE));
 		// TOOD: if there are tables in the TablesTable, add those to the Database class
 	}
 

@@ -38,7 +38,7 @@ public class Table extends DatabaseFile {
     // Use this if you are initialising a new table
     // TODO: handle exceptions
     public Table(String name) throws FileNotFoundException, IOException {
-        super(name);
+        super(name + Settings.TABLE_FILE_EXTENSION);
         writeFirstPage();
     }
 
@@ -46,9 +46,9 @@ public class Table extends DatabaseFile {
         // set the file length
         this.setLength(Settings.PAGE_SIZE);
         // set page type
-        setPageType(0, LEAF_PAGE_TYPE);
+        setPageType((short) 0, LEAF_PAGE_TYPE);
         // set content start offset
-        setEmptyPageStartContent(0);
+        setEmptyPageStartContent((short) 0);
         // set this page as root
         setPageAsRoot((short) 0);
         // set the right sibling null
@@ -62,6 +62,72 @@ public class Table extends DatabaseFile {
         super(file);
     }
 
+    // TODO change the return type
+    // TODO handle cases where rowId is not found
+    public void getRowByRowId(int rowId) throws IOException {
+        short rootPage = getRootPageNumber();
+        byte[] cellBytes = recursivelyTraverse(rootPage, rowId);
+        // TODO finish this
+    }
+
+    private byte[] recursivelyTraverse(short page, int rowId) throws IOException {
+        if (getPageType(page) == LEAF_PAGE_TYPE) {
+            short numberOfCells = getNumberOfCellsInPage(page);
+            for (short cellNumber = 0; cellNumber < numberOfCells; cellNumber++) {
+                byte[] cell = getCellByCellNumber(page, cellNumber);
+                int thisRowId = getRowIdFromLeafCell(cell);
+                if (thisRowId == rowId)
+                    return cell;
+            }
+        }
+        short numberOfCells = getNumberOfCellsInPage(page);
+        for (short cellNumber = 0; cellNumber < numberOfCells; cellNumber++) {
+            byte[] cell = getCellByCellNumber(page, cellNumber);
+            int thisRowId = getRowIdFromInteriorCell(cell);
+            if (thisRowId > rowId) {
+                int leftChild = getLeftChildPageNumberFromCell(cell);
+                return recursivelyTraverse((short) leftChild, rowId);
+            }
+        }
+        short rightSibling = getRightSibling(page);
+        if (rightSibling == -1)
+            return null;
+        return recursivelyTraverse(rightSibling, rowId);
+    }
+
+    private int getLeftChildPageNumberFromCell(byte[] cell) {
+        return (cell[0] & 0xFF) << 24 |
+                (cell[1] & 0xFF) << 16 |
+                (cell[2] & 0xFF) << 8 |
+                (cell[4] & 0xFF);
+    }
+
+    private int getRowIdFromInteriorCell(byte[] cell) {
+        return (cell[4] & 0xFF) << 24 |
+                (cell[5] & 0xFF) << 16 |
+                (cell[6] & 0xFF) << 8 |
+                (cell[7] & 0xFF);
+    }
+
+    private int getRowIdFromLeafCell(byte[] cell) {
+        return (cell[2] & 0xFF) << 24 |
+                (cell[3] & 0xFF) << 16 |
+                (cell[4] & 0xFF) << 8 |
+                (cell[5] & 0xFF);
+    }
+
+    private byte[] getCellByCellNumber(short page, short cellNumber) throws IOException {
+        long pageOffset = Utils.getFileOffsetFromPageNumber(page);
+        this.seek(pageOffset + PAGE_HEADER_SIZE + cellNumber * 2);
+        short contentStartOffset = this.readShort();
+        this.seek(pageOffset + contentStartOffset);
+        short cellSize = this.readShort();
+        byte[] cell = new byte[cellSize + 4 + 2];
+        this.seek(pageOffset + contentStartOffset);
+        this.read(cell);
+        return cell;
+    }
+
     public void addRow(TableRow row) throws IOException {
         short rightmostLeafPage = getRightmostLeafPage(getRootPageNumber());
         int nextRowId = getLastRowIdInPage(rightmostLeafPage) + 1;
@@ -72,15 +138,43 @@ public class Table extends DatabaseFile {
         byte[] cell = Utils.prepend(payload, nextRowId);
         cell = Utils.prepend(cell, payloadSize);
 
-        if (checkOverflow(rightmostLeafPage, cell.length)) {
-            rightmostLeafPage = appendNewLeaf(rightmostLeafPage, nextRowId);
+        writeCellInPage(cell, rightmostLeafPage, nextRowId);
+    }
+
+    // TODO make this recursively check for overflow of parent nodes
+    protected void writeCellInPage(byte[] cell, short pageNumber, int rowId) throws IOException {
+        if (checkOverflow(pageNumber, cell.length)) {
+            if (getPageType(pageNumber) == LEAF_PAGE_TYPE) {
+                pageNumber = appendNewLeaf(pageNumber, rowId);
+            } else {
+                // TODO
+            }
         }
-        writeCellInPage(cell, rightmostLeafPage);
+        long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
+        short pageOffsetForCell = getPageOffsetForNewCell(pageNumber, (short) cell.length);
+
+        // write the cell
+        this.seek(fileOffset + pageOffsetForCell);
+        this.write(cell);
+
+        // update the content start offset
+        setContentStartOffset(pageNumber, pageOffsetForCell);
+
+        // update the number of rows in the page header
+        this.seek(fileOffset + NUMBER_OF_CELLS_OFFSET);
+        short numberOfRows = this.readShort();
+        this.seek(fileOffset + NUMBER_OF_CELLS_OFFSET);
+        this.writeShort(numberOfRows + 1);
+
+        // write cell start offset
+        this.seek(fileOffset + getCellStartOffset(numberOfRows));
+        this.writeShort(pageOffsetForCell);
     }
 
     private int getLastRowIdInPage(short pageNumber) throws IOException {
         short pageContentOffset = getContentStartOffset(pageNumber);
-        if (pageContentOffset == Settings.PAGE_SIZE) return 0;
+        if (pageContentOffset == Settings.PAGE_SIZE)
+            return 0;
         this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + pageContentOffset + 2);
         return this.readInt();
     }
@@ -91,7 +185,7 @@ public class Table extends DatabaseFile {
 
         // set this new page as right sibling
         setRightSibling(pageNumber, newLeafPage);
-    
+
         short parentPage = getParentPage(pageNumber);
         if (parentPage == -1) { // this is the root
             parentPage = addInteriorPage();
@@ -100,9 +194,10 @@ public class Table extends DatabaseFile {
         }
         setParentOfPage(newLeafPage, parentPage);
         setRightSibling(parentPage, newLeafPage);
-        // TODO handle case for overflow in the interior page
+        // TODO handle case for overflow in the interior page (this overflow case is
+        // recursive)
         // insert cell to make "pageNumber" as the left child
-        writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - 1), parentPage);
+        writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - 1), parentPage, -1); // dummy row ID
         return newLeafPage;
     }
 
@@ -121,14 +216,9 @@ public class Table extends DatabaseFile {
         return newPageNumber;
     }
 
-    private void setPageType(int pageNumber, byte pageType) throws IOException {
-        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber));
-        this.writeByte(pageType);
-    }
-    
     private boolean checkOverflow(short pageNumber, int cellLength) throws IOException {
         short contentStart = getContentStartOffset(pageNumber);
-        short numberOfRows = getNumberOfRowsInPage(pageNumber);
+        short numberOfRows = getNumberOfCellsInPage(pageNumber);
         int emptySpace = contentStart - numberOfRows * 2 - PAGE_HEADER_SIZE;
         return emptySpace < cellLength + 2; // 2 bytes for the cell offset
     }
