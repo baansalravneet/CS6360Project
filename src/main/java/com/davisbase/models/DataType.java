@@ -31,4 +31,29 @@ public enum DataType {
         }
         return null; // null is returned if nothing matches
     }
+
+    public static Object parseData(String value, DataType dataType) {
+        try {
+            switch (dataType) {
+                case INT:
+                    return Integer.parseInt(value);
+                case TINYINT:
+                    return Byte.parseByte(value);
+                case SMALLINT:
+                    return Short.parseShort(value);
+                case BIGINT:
+                    return Long.parseLong(value);
+                case FLOAT:
+                    return Float.parseFloat(value);
+                case DOUBLE:
+                    return Double.parseDouble(value);
+                case TEXT:
+                    return value;
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

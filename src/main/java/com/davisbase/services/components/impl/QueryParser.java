@@ -6,8 +6,10 @@ import com.davisbase.commands.CommandType;
 import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
+import com.davisbase.commands.impl.InsertCommand;
 import com.davisbase.commands.impl.InvalidCommand;
 import com.davisbase.models.ColumnDefinition;
+import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
 import com.davisbase.services.Mediator;
 import com.davisbase.services.components.Component;
@@ -35,7 +37,7 @@ public class QueryParser extends Component {
             case HELP:
                 return new HelpCommand(null);
             case CREATE_TABLE:
-                return generateCreateTableCommand(input);
+                return generateCreateTableCommand();
             case SHOW_TABLE:
                 return null;
             case DROP_TABLE:
@@ -43,7 +45,7 @@ public class QueryParser extends Component {
             case CREATE_INDEX:
                 return null;
             case INSERT:
-                return null;
+                return generateInsertCommand(input);
             case DELETE:
                 return null;
             case UPDATE:
@@ -56,8 +58,41 @@ public class QueryParser extends Component {
 
     }
 
-    // TODO: complete this
-    private Command generateCreateTableCommand(String input) {
+    private Command generateInsertCommand(String input) {
+        System.out.print("\nEnter table name.");
+        String tableName = mediator.getInput();
+        CommandContext context = new CommandContext();
+        context.setTableName(tableName);
+        ColumnValue columnValue = null;
+        do {
+            columnValue = null;
+            System.out.print("\nEnter \"DONE\" if done");
+            System.out.print("\nEnter column info (<name> <datatype> <value>)");
+            String columnString = mediator.getInput();
+            if (columnString.equalsIgnoreCase("DONE")) {
+                break;
+            }
+            String[] words = columnString.split(" ");
+            if (words.length != 3) {
+                return new InvalidCommand(null);
+            }
+            String name = words[0];
+            DataType dataType = DataType.getEnum(words[1]);
+            if (dataType == null) {
+                return new InvalidCommand(null);
+            }
+            String value = words[2];
+            Object parsedValue = DataType.parseData(value, dataType);
+            if (parsedValue == null) {
+                return new InvalidCommand(context);
+            }
+            columnValue = new ColumnValue(name, dataType, parsedValue);
+            context.addColumnValues(columnValue);
+        } while (columnValue != null);
+        return new InsertCommand(context);
+    }
+
+    private Command generateCreateTableCommand() {
         System.out.print("\nEnter table name.");
         String tableName = mediator.getInput();
         CommandContext context = new CommandContext();
