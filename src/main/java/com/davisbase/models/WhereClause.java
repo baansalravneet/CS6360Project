@@ -32,5 +32,4 @@ enum Condition {
     GREATER_THAN_EQUAL,
     SMALLER_THAN,
     SMALLER_THAN_EQUAL
-} 
-
+}

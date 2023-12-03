@@ -8,5 +8,5 @@ public class InvalidCommandOutput extends CommandOutput {
     public void display() {
         System.out.println("Invalid query. Type \"help\" to display supported commands.");
     }
-    
+
 }
