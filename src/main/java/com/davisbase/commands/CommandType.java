@@ -6,7 +6,7 @@ public enum CommandType {
     EXIT("(?i)^exit\\s?.*"),
     HELP("(?i)^help\\s?.*"),
     CREATE_TABLE("(?i)^create table\\s?.*"),
-    SHOW_TABLE("(?i)^show table\\s?.*"),
+    SHOW_TABLES("(?i)^show tables\\s?.*"),
     DROP_TABLE("(?i)^drop table\\s?.*"),
     CREATE_INDEX("(?i)^create index\\s?.*"),
     INSERT("(?i)^insert\\s?.*"),

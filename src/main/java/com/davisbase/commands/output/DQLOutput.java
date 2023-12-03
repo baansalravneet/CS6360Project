@@ -1,10 +1,20 @@
 package com.davisbase.commands.output;
 
+import java.util.List;
+
+import com.davisbase.models.OutputRow;
+
 public abstract class DQLOutput extends CommandOutput {
 
-    public DQLOutput(boolean status) {
+    private List<OutputRow> outputRows;
+
+    public DQLOutput(boolean status, List<OutputRow> outputRows) {
         super(status);
-        //TODO Auto-generated constructor stub
+        this.outputRows = outputRows;
+    }
+
+    public List<OutputRow> getOutputRows() {
+        return outputRows;
     }
 
 }

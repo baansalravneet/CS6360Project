@@ -3,13 +3,13 @@ package com.davisbase.commands.output.impl;
 import java.util.List;
 
 import com.davisbase.commands.output.DQLOutput;
+import com.davisbase.models.OutputRow;
 
 public class ShowTablesOutput extends DQLOutput {
     private List<String> tableNames;
 
-    public ShowTablesOutput(boolean status, List<String> tableNames) {
-        super(status);
-        this.tableNames = tableNames;
+    public ShowTablesOutput(boolean status, List<OutputRow> outputRows) {
+        super(status, outputRows);
     }
 
     @Override

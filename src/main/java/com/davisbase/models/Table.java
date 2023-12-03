@@ -85,6 +85,66 @@ public class Table extends DatabaseFile {
         return result;
     }
 
+    public static List<OutputRow> getOutputRows(List<byte[]> cells) {
+        List<OutputRow> rows = new ArrayList<>();
+        for (byte[] cell : cells) {
+            OutputRow row = new OutputRow();
+            byte[] record = getRecordFromLeafCell(cell);
+            List<Object> values = split(record);
+            for (Object value : values) {
+                row.addOutputValue(String.valueOf(value));
+            }
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private static List<Object> split(byte[] record) {
+        List<Object> result = new ArrayList<>();
+        int numberOfColumns = (int) record[0];
+        int typeIndex = 1;
+        int valueIndex = 1 + numberOfColumns;
+        while (numberOfColumns-- > 0) {
+            byte type = record[typeIndex];
+            switch (DataType.getEnum(type)) {
+                case TINYINT:
+                    result.add((byte) record[valueIndex]);
+                    valueIndex += 1;
+                    typeIndex += 1;
+                    break;
+                case INT:
+                    result.add((int)((record[valueIndex++] & 0xFF) << 24 |
+                    (record[valueIndex++] & 0xFF) << 16 |
+                    (record[valueIndex++] & 0xFF) << 8 |
+                    (record[valueIndex++] & 0xFF)));
+                    typeIndex += 1;
+                    break;
+                case TEXT:
+                    int length = type - DataType.TEXT.getTypeCode();
+                    StringBuilder sb = new StringBuilder();
+                    while (length-- > 0) {
+                        sb.append((char) record[valueIndex++]);
+                    }
+                    result.add(sb.toString());
+                    typeIndex++;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return result;
+    }
+
+    private static byte[] getRecordFromLeafCell(byte[] cell) {
+        byte[] record = new byte[cell.length - 6];
+        int index = 6;
+        while (index < cell.length) {
+            record[index - 6] = cell[index];
+            index++;
+        }
+        return record;
+    }
+
     private byte[] getLeafCellByCellNumber(short pageNumber, short cellNumber) throws IOException {
         short cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
         this.seek(cellOffset);
@@ -96,10 +156,11 @@ public class Table extends DatabaseFile {
     }
 
     private short getFirstLeafPage(short page) throws IOException {
-        if (getPageType(page) == LEAF_PAGE_TYPE) return page;
+        if (getPageType(page) == LEAF_PAGE_TYPE)
+            return page;
         byte[] cell = getInteriorCellByCellNumber(page, (short) 0);
         int leftChild = getLeftChildPageNumberFromCell(cell);
-        return getFirstLeafPage((short)leftChild);
+        return getFirstLeafPage((short) leftChild);
     }
 
     // TODO change the return type
@@ -134,25 +195,29 @@ public class Table extends DatabaseFile {
         return recursivelyTraverseForRowId(rightSibling, rowId);
     }
 
-    private int getLeftChildPageNumberFromCell(byte[] cell) {
+    private static int getLeftChildPageNumberFromCell(byte[] cell) {
         return (cell[0] & 0xFF) << 24 |
                 (cell[1] & 0xFF) << 16 |
                 (cell[2] & 0xFF) << 8 |
                 (cell[4] & 0xFF);
     }
 
-    private int getRowIdFromInteriorCell(byte[] cell) {
+    private static int getRowIdFromInteriorCell(byte[] cell) {
         return (cell[4] & 0xFF) << 24 |
                 (cell[5] & 0xFF) << 16 |
                 (cell[6] & 0xFF) << 8 |
                 (cell[7] & 0xFF);
     }
 
-    private int getRowIdFromLeafCell(byte[] cell) {
+    private static int getRowIdFromLeafCell(byte[] cell) {
         return (cell[2] & 0xFF) << 24 |
                 (cell[3] & 0xFF) << 16 |
                 (cell[4] & 0xFF) << 8 |
                 (cell[5] & 0xFF);
+    }
+
+    private static short getPayloadSizeFromLeafCell(byte[] cell) {
+        return (short) ((cell[0] & 0xFF) << 8 | (cell[1] & 0xFF));
     }
 
     private byte[] getInteriorCellByCellNumber(short page, short cellNumber) throws IOException {

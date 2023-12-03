@@ -32,6 +32,15 @@ public enum DataType {
         return null; // null is returned if nothing matches
     }
 
+    public static DataType getEnum(byte dataType) {
+        for (DataType d : DataType.values()) {
+            if (d.getTypeCode() == dataType) {
+                return d;
+            }
+        }
+        return TEXT;
+    }
+
     public static Object parseData(String value, DataType dataType) {
         try {
             switch (dataType) {
@@ -56,4 +65,5 @@ public enum DataType {
             return null;
         }
     }
+
 }

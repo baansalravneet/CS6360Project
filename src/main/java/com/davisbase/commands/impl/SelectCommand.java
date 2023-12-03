@@ -10,7 +10,7 @@ import com.davisbase.commands.output.CommandOutput;
 import com.davisbase.commands.output.impl.InvalidCommandOutput;
 import com.davisbase.commands.output.impl.SelectOutput;
 import com.davisbase.config.Settings;
-import com.davisbase.models.OutputTable;
+import com.davisbase.models.OutputRow;
 import com.davisbase.models.Table;
 
 public class SelectCommand extends Command {
@@ -30,10 +30,9 @@ public class SelectCommand extends Command {
             }
             Table t = new Table(tableFile);
             List<byte[]> cells = t.getAllCells();
+            List<OutputRow> outputRows = Table.getOutputRows(cells);
             t.close();
-            OutputTable output = new OutputTable();
-            
-            return new SelectOutput(true);
+            return new SelectOutput(true, outputRows);
         } catch (Exception e) {
             // TODO fix this
             System.out.println(e);

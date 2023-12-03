@@ -9,6 +9,7 @@ import com.davisbase.commands.impl.HelpCommand;
 import com.davisbase.commands.impl.InsertCommand;
 import com.davisbase.commands.impl.InvalidCommand;
 import com.davisbase.commands.impl.SelectCommand;
+import com.davisbase.commands.impl.ShowTablesCommand;
 import com.davisbase.models.ColumnDefinition;
 import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
@@ -39,8 +40,8 @@ public class QueryParser extends Component {
                 return new HelpCommand(null);
             case CREATE_TABLE:
                 return generateCreateTableCommand();
-            case SHOW_TABLE:
-                return null;
+            case SHOW_TABLES:
+                return generateShowTablesCommand();
             case DROP_TABLE:
                 return null;
             case CREATE_INDEX:
@@ -57,6 +58,14 @@ public class QueryParser extends Component {
                 return new InvalidCommand(null);
         }
 
+    }
+
+    private Command generateShowTablesCommand() {
+        System.out.print("\nEnter table name.");
+        String tableName = mediator.getInput();
+        CommandContext context = new CommandContext();
+        context.setTableName(tableName);
+        return new ShowTablesCommand(context); 
     }
 
     private Command generateSelectCommand() {
