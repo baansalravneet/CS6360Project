@@ -13,6 +13,13 @@ public class CommandContext {
     private List<ColumnDefinition> columnContext;
     private List<ColumnValue> columnValues;
 
+    public void addColumnContext(ColumnDefinition columnDefinition) {
+        if (columnContext == null) {
+            columnContext = new ArrayList<>();
+        }
+        columnContext.add(columnDefinition);
+    }
+
     public String getTableName() {
         return tableName;
     }

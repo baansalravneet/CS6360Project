@@ -41,4 +41,8 @@ public class Mediator {
     public void addDisplayManagerComponent(DisplayManager component) {
         this.displayManager = component;
     }
+
+    public String getInput() {
+        return prompt.getInput();
+    }
 }

@@ -6,8 +6,12 @@ import com.davisbase.commands.CommandType;
 import com.davisbase.commands.impl.CreateTableCommand;
 import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
+import com.davisbase.commands.impl.InvalidCommand;
+import com.davisbase.models.ColumnDefinition;
+import com.davisbase.models.DataType;
 import com.davisbase.services.Mediator;
 import com.davisbase.services.components.Component;
+import com.davisbase.utils.Utils;
 
 public class QueryParser extends Component {
 
@@ -47,21 +51,53 @@ public class QueryParser extends Component {
             case SELECT:
                 return null;
             default:
-                System.out.println("Unknown command type");
-                return null;
+                return new InvalidCommand(null);
         }
 
     }
 
-    private CommandContext getCommandContext() {
-        CommandContext context = null;
-
-        return context;
-    }
-
     // TODO: complete this
     private Command generateCreateTableCommand(String input) {
-        return new CreateTableCommand(null);
-    }
+        System.out.print("\nEnter table name.");
+        String tableName = mediator.getInput();
+        CommandContext context = new CommandContext();
+        context.setTableName(tableName);
+        ColumnDefinition definition = null;
+        do {
+            definition = null;
+            System.out.print("\nEnter \"DONE\" if done");
+            System.out.print(
+                    "\nEnter column info (<name> <datatype> <nullable(YES/NO)> <unique(YES/NO)> <primary key(YES/NO)>)");
+            String columnString = mediator.getInput();
+            if (columnString.equalsIgnoreCase("DONE")) {
+                break;
+            }
+            String[] words = columnString.split(" ");
+            if (words.length != 5)
+                return new InvalidCommand(null);
+            String name = words[0];
+            DataType dataType = DataType.getEnum(words[1]);
+            if (dataType == null) {
+                return new InvalidCommand(null); // invalid query
+            }
+            Boolean nullable = Utils.getBoolean(words[2]);
+            if (nullable == null) {
+                return new InvalidCommand(null);
+            }
+            Boolean unique = Utils.getBoolean(words[3]);
+            if (unique == null) {
+                return new InvalidCommand(null);
+            }
+            Boolean primaryKey = Utils.getBoolean(words[4]);
+            if (primaryKey == null) {
+                return new InvalidCommand(null);
+            }
+            definition = new ColumnDefinition(name, dataType, nullable, unique, primaryKey);
+            context.addColumnContext(definition);
 
+        } while (definition != null);
+        return context.getColumnContext() != null && !context.getColumnContext().isEmpty()
+                ? new CreateTableCommand(context)
+                : new InvalidCommand(null);
+    }
 }

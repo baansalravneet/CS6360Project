@@ -22,6 +22,16 @@ public class Utils {
         return bar;
     }
 
+    public static Boolean getBoolean(String s) {
+        if ("YES".equalsIgnoreCase(s)) {
+            return true;
+        }
+        if ("NO".equalsIgnoreCase(s)) {
+            return false;
+        }
+        return null;
+    }
+
     public static byte[] integerToByteArray(int i) {
         return new byte[] {
                 (byte) (i >> 24),

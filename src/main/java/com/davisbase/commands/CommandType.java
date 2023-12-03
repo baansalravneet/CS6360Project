@@ -12,7 +12,8 @@ public enum CommandType {
     INSERT("(?i)^insert\\s?.*"),
     DELETE("(?i)^delete\\s?.*"),
     UPDATE("(?i)^update\\s?.*"),
-    SELECT("(?i)^select\\s?.*");
+    SELECT("(?i)^select\\s?.*"),
+    INVALID("^$");
 
     private final String regex;
 
@@ -30,8 +31,7 @@ public enum CommandType {
                 return commandType;
             }
         }
-        // Return a default value or throw an exception if no match is found
-        throw new IllegalArgumentException("No matching command type for input: " + input);
+        return INVALID;
     }
 
 }

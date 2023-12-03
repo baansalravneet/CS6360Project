@@ -21,4 +21,9 @@ public class Prompt extends Component {
         mediator.notify(this, commandString);
     }
 
+    public String getInput() {
+        System.out.printf("\n%s", Settings.PROMPT);
+        return scanner.nextLine().trim();
+    }
+
 }

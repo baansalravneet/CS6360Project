@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
 import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.InvalidCommandOutput;
+import com.davisbase.commands.output.impl.CreateTableOutput;
 import com.davisbase.config.Database;
 import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
@@ -33,7 +33,7 @@ public class CreateTableCommand extends Command {
             e.printStackTrace();
         }
 
-        return new InvalidCommandOutput();
+        return new CreateTableOutput(true);
     }
 
 }
