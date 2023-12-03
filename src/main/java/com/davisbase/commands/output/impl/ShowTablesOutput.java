@@ -2,12 +2,12 @@ package com.davisbase.commands.output.impl;
 
 import java.util.List;
 
-import com.davisbase.commands.output.DDLOutput;
+import com.davisbase.commands.output.DQLOutput;
 
-public class ShowTableOutput extends DDLOutput {
+public class ShowTablesOutput extends DQLOutput {
     private List<String> tableNames;
 
-    public ShowTableOutput(boolean status, List<String> tableNames) {
+    public ShowTablesOutput(boolean status, List<String> tableNames) {
         super(status);
         this.tableNames = tableNames;
     }

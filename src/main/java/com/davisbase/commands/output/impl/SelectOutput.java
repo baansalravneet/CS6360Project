@@ -5,7 +5,12 @@ import com.davisbase.models.OutputTable;
 
 public class SelectOutput extends CommandOutput {
     private boolean status;
-    OutputTable table;
+    private OutputTable table;
+
+    public SelectOutput(boolean status) {
+        super(status);
+        //TODO Auto-generated constructor stub
+    }
 
     @Override
     public void display() {

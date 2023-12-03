@@ -15,6 +15,10 @@ public class OutputTable {
         this.records = new ArrayList<>();
     }
 
+    public OutputTable() {
+
+    }
+
     public OutputTable(String tableName, List<String> columnNames, List<List<Object>> records) {
         this.tableName = tableName;
         this.columnNames = columnNames;

@@ -8,6 +8,7 @@ import com.davisbase.commands.impl.ExitCommand;
 import com.davisbase.commands.impl.HelpCommand;
 import com.davisbase.commands.impl.InsertCommand;
 import com.davisbase.commands.impl.InvalidCommand;
+import com.davisbase.commands.impl.SelectCommand;
 import com.davisbase.models.ColumnDefinition;
 import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
@@ -45,20 +46,28 @@ public class QueryParser extends Component {
             case CREATE_INDEX:
                 return null;
             case INSERT:
-                return generateInsertCommand(input);
+                return generateInsertCommand();
             case DELETE:
                 return null;
             case UPDATE:
                 return null;
             case SELECT:
-                return null;
+                return generateSelectCommand();
             default:
                 return new InvalidCommand(null);
         }
 
     }
 
-    private Command generateInsertCommand(String input) {
+    private Command generateSelectCommand() {
+        System.out.print("\nEnter table name.");
+        String tableName = mediator.getInput();
+        CommandContext context = new CommandContext();
+        context.setTableName(tableName);
+        return new SelectCommand(context);
+    }
+
+    private Command generateInsertCommand() {
         System.out.print("\nEnter table name.");
         String tableName = mediator.getInput();
         CommandContext context = new CommandContext();

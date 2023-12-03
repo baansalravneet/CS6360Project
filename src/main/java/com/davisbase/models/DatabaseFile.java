@@ -115,8 +115,8 @@ public abstract class DatabaseFile extends RandomAccessFile {
         this.writeShort(offset);
     }
 
-    protected short getCellStartOffsetInPage(int cellNumber) throws IOException {
-        this.seek(PAGE_HEADER_SIZE + cellNumber * 2);
+    protected short getCellStartOffsetInPage(int cellNumber, short page) throws IOException {
+        this.seek(Utils.getFileOffsetFromPageNumber(page) + PAGE_HEADER_SIZE + cellNumber * 2);
         return this.readShort();
     }
 

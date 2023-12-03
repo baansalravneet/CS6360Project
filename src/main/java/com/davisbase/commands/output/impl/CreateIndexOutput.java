@@ -10,7 +10,7 @@ public class CreateIndexOutput extends DDLOutput {
 
     @Override
     public void display() {
-        if (this.getStatus()) {
+        if (getStatus()) {
             System.out.println("Create Index is executed successfully");
         } else {
             System.out.println("Create Index operation failed");

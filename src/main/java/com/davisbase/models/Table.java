@@ -71,6 +71,30 @@ public class Table extends DatabaseFile {
         return new ArrayList<>();
     }
 
+    public List<byte[]> getAllCells() throws IOException {
+        short rootPage = getRootPageNumber();
+        short leaf = getFirstLeafPage(rootPage);
+        List<byte[]> result = new ArrayList<>();
+        while (leaf != -1) {
+            short nCells = getNumberOfCellsInPage(leaf);
+            for (short cellNumber = 0; cellNumber < nCells; cellNumber++) {
+                result.add(getLeafCellByCellNumber(leaf, cellNumber));
+            }
+            leaf = getRightSibling(leaf);
+        }
+        return result;
+    }
+
+    private byte[] getLeafCellByCellNumber(short pageNumber, short cellNumber) throws IOException {
+        short cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
+        this.seek(cellOffset);
+        short cellSize = this.readShort();
+        byte[] cell = new byte[2 + 4 + cellSize]; // payload size, rowid, payload
+        this.seek(cellOffset);
+        this.read(cell);
+        return cell;
+    }
+
     private short getFirstLeafPage(short page) throws IOException {
         if (getPageType(page) == LEAF_PAGE_TYPE) return page;
         byte[] cell = getInteriorCellByCellNumber(page, (short) 0);
@@ -132,10 +156,9 @@ public class Table extends DatabaseFile {
     }
 
     private byte[] getInteriorCellByCellNumber(short page, short cellNumber) throws IOException {
-        long pageOffset = Utils.getFileOffsetFromPageNumber(page);
-        short cellStartOffset = getCellStartOffsetInPage(cellNumber);
+        short cellStartOffset = getCellStartOffsetInPage(cellNumber, page);
         byte[] cell = new byte[8]; // all interior page cells are 8 bytes
-        this.seek(pageOffset + cellStartOffset);
+        this.seek(cellStartOffset);
         this.read(cell);
         return cell;
     }

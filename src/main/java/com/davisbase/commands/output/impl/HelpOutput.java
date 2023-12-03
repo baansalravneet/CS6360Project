@@ -10,6 +10,7 @@ public class HelpOutput extends CommandOutput {
     }
 
     public HelpOutput(String outputString) {
+        super(true);
         this.outputString = outputString;
     }
 
