@@ -41,7 +41,7 @@ public class QueryParser extends Component {
             case CREATE_TABLE:
                 return generateCreateTableCommand();
             case SHOW_TABLES:
-                return generateShowTablesCommand();
+                return new ShowTablesCommand(null);
             case DROP_TABLE:
                 return null;
             case CREATE_INDEX:
@@ -58,14 +58,6 @@ public class QueryParser extends Component {
                 return new InvalidCommand(null);
         }
 
-    }
-
-    private Command generateShowTablesCommand() {
-        System.out.print("\nEnter table name.");
-        String tableName = mediator.getInput();
-        CommandContext context = new CommandContext();
-        context.setTableName(tableName);
-        return new ShowTablesCommand(context); 
     }
 
     private Command generateSelectCommand() {

@@ -6,7 +6,6 @@ import com.davisbase.commands.output.DQLOutput;
 import com.davisbase.models.OutputRow;
 
 public class ShowTablesOutput extends DQLOutput {
-    private List<String> tableNames;
 
     public ShowTablesOutput(boolean status, List<OutputRow> outputRows) {
         super(status, outputRows);
@@ -15,40 +14,11 @@ public class ShowTablesOutput extends DQLOutput {
     @Override
     public void display() {
         if (this.getStatus()) {
-
-            // Find the maximum length of the table names
-            int maxLength = 0;
-            for (String tableName : tableNames) {
-                if (tableName.length() > maxLength) {
-                    maxLength = tableName.length();
-                }
+            for (OutputRow row : getOutputRows()) {
+                System.out.println(row.toString());
             }
-
-            // Print spaces before table header
-            for (int i = 0; i < (maxLength - 5) / 2; i++) {
-                System.out.print(" ");
-            }
-
-            // Print header
-            System.out.println("TABLE NAME");
-
-            // Print underscores
-            for (int i = 0; i < maxLength + 5; i++) {
-                System.out.print("_");
-            }
-            System.out.println();
-            for (String tableName : tableNames) {
-                int spacesBefore = (maxLength + 5 - tableName.length()) / 2;
-                // Print spaces before table name
-                for (int i = 0; i < spacesBefore; i++) {
-                    System.out.print(" ");
-                }
-                // Print table name
-                System.out.println(tableName);
-            }
-
         } else {
-            System.out.println("Show Table operation failed");
+            System.out.println("Show tables operation failed");
         }
     }
 }
