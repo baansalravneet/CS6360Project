@@ -5,9 +5,8 @@ import java.io.IOException;
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
 import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.InvalidCommandOutput;
+import com.davisbase.commands.output.impl.CreateTableOutput;
 import com.davisbase.config.Database;
-import com.davisbase.config.Settings;
 import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
 import com.davisbase.models.Table;
@@ -21,7 +20,7 @@ public class CreateTableCommand extends Command {
 
     @Override
     public CommandOutput execute() { 
-        try (Table newTable = new Table(context.getTableName() + Settings.TABLE_FILE_EXTENSION)) {
+        try (Table newTable = new Table(context.getTableName())) {
             TableRow tablesTableRow = new TableRow();
             tablesTableRow.appendValue(new ColumnValue(DataType.TEXT, context.getTableName()));
             Database.getTablesTable().addRow(tablesTableRow);
@@ -34,7 +33,7 @@ public class CreateTableCommand extends Command {
             e.printStackTrace();
         }
 
-        return new InvalidCommandOutput();
+        return new CreateTableOutput(true);
     }
 
 }

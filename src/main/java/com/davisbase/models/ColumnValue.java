@@ -3,12 +3,28 @@ package com.davisbase.models;
 import com.davisbase.utils.Utils;
 
 public class ColumnValue {
-    private final DataType dataType;
-    private final Object value;
+    private String columnName;
+    private DataType dataType;
+    private Object value;
+
+    public ColumnValue(String columnName, DataType dataType, Object value) {
+        this.columnName = columnName;
+        this.dataType = dataType;
+        this.value = value;
+    }
 
     public ColumnValue(DataType dataType, Object value) {
         this.dataType = dataType;
         this.value = value;
+    }
+
+    public ColumnValue(String name, Object value) {
+        this.columnName = name;
+        this.value = value;
+    }
+
+    public String getColumnName() {
+        return columnName;
     }
 
     public DataType getDataType() {

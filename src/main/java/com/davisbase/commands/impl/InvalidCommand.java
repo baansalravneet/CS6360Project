@@ -15,5 +15,5 @@ public class InvalidCommand extends Command {
     public CommandOutput execute() {
         return new InvalidCommandOutput();
     }
-    
+
 }

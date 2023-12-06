@@ -6,13 +6,14 @@ public enum CommandType {
     EXIT("(?i)^exit\\s?.*"),
     HELP("(?i)^help\\s?.*"),
     CREATE_TABLE("(?i)^create table\\s?.*"),
-    SHOW_TABLE("(?i)^show table\\s?.*"),
+    SHOW_TABLES("(?i)^show tables\\s?.*"),
     DROP_TABLE("(?i)^drop table\\s?.*"),
     CREATE_INDEX("(?i)^create index\\s?.*"),
     INSERT("(?i)^insert\\s?.*"),
     DELETE("(?i)^delete\\s?.*"),
     UPDATE("(?i)^update\\s?.*"),
-    SELECT("(?i)^select\\s?.*");
+    SELECT("(?i)^select\\s?.*"),
+    INVALID("^$");
 
     private final String regex;
 
@@ -30,8 +31,7 @@ public enum CommandType {
                 return commandType;
             }
         }
-        // Return a default value or throw an exception if no match is found
-        throw new IllegalArgumentException("No matching command type for input: " + input);
+        return INVALID;
     }
 
 }

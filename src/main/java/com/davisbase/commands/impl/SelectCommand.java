@@ -2,24 +2,26 @@ package com.davisbase.commands.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
 import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.InsertOutput;
 import com.davisbase.commands.output.impl.InvalidCommandOutput;
+import com.davisbase.commands.output.impl.SelectOutput;
 import com.davisbase.config.Settings;
+import com.davisbase.models.OutputRow;
 import com.davisbase.models.Table;
 
-public class InsertCommand extends Command {
+public class SelectCommand extends Command {
 
-    public InsertCommand(CommandContext context) {
+    public SelectCommand(CommandContext context) {
         super(context);
     }
 
     @Override
     public CommandOutput execute() {
-        // TODO verify the values (data types, null values etc)
+        // TODO only happy case working right now
         String fileName = context.getTableName() + Settings.TABLE_FILE_EXTENSION;
         try {
             File tableFile = new File(fileName);
@@ -27,9 +29,10 @@ public class InsertCommand extends Command {
                 throw new FileNotFoundException();
             }
             Table t = new Table(tableFile);
-            t.addRow(context.getInsertRow());
+            List<byte[]> cells = t.getAllCells();
+            List<OutputRow> outputRows = Table.getOutputRows(cells);
             t.close();
-            return new InsertOutput(true, 1);
+            return new SelectOutput(true, outputRows);
         } catch (Exception e) {
             // TODO fix this
             System.out.println(e);
