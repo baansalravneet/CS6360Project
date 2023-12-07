@@ -1,8 +1,8 @@
 package com.davisbase.commands.output.impl;
 
-import com.davisbase.commands.output.DDLOutput;
+import com.davisbase.commands.output.CommandOutput;
 
-public class ExitOutput extends DDLOutput {
+public class ExitOutput extends CommandOutput {
     public ExitOutput(boolean status) {
         super(status);
     }

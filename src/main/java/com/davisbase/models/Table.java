@@ -216,10 +216,6 @@ public class Table extends DatabaseFile {
                 (cell[5] & 0xFF);
     }
 
-    private static short getPayloadSizeFromLeafCell(byte[] cell) {
-        return (short) ((cell[0] & 0xFF) << 8 | (cell[1] & 0xFF));
-    }
-
     private byte[] getInteriorCellByCellNumber(short page, short cellNumber) throws IOException {
         short cellStartOffset = getCellStartOffsetInPage(cellNumber, page);
         byte[] cell = new byte[8]; // all interior page cells are 8 bytes

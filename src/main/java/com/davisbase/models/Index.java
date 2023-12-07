@@ -55,7 +55,7 @@ public class Index extends DatabaseFile {
             // TODO implement for interior page, how will you insert in interior page?
             cell = new byte[0];
         }
-        // TOOD
+        // TODO
         writeCellInPage(cell, pageToInsert);
     }
 
