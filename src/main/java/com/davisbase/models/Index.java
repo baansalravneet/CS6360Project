@@ -3,6 +3,7 @@ package com.davisbase.models;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import com.davisbase.config.Settings;
 import com.davisbase.utils.Utils;
@@ -55,7 +56,6 @@ public class Index extends DatabaseFile {
             // TODO implement for interior page, how will you insert in interior page?
             cell = new byte[0];
         }
-        // TODO
         writeCellInPage(cell, pageToInsert);
     }
 
@@ -129,16 +129,10 @@ public class Index extends DatabaseFile {
     }
 
     private int getIndexValueInCell(byte[] cell) {
-        return (cell[8] & 0xFF) << 24 |
-                (cell[9] & 0xFF) << 16 |
-                (cell[10] & 0xFF) << 8 |
-                (cell[11] & 0xFF);
+        return ByteBuffer.wrap(cell).getInt(8);
     }
 
     private int getLeftChildPageNumberFromCell(byte[] cell) {
-        return (cell[0] & 0xFF) << 24 |
-                (cell[1] & 0xFF) << 16 |
-                (cell[2] & 0xFF) << 8 |
-                (cell[4] & 0xFF);
+        return ByteBuffer.wrap(cell).getInt(0);
     }
 }

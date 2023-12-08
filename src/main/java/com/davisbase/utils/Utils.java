@@ -1,5 +1,7 @@
 package com.davisbase.utils;
 
+import java.nio.ByteBuffer;
+
 import com.davisbase.config.Settings;
 
 public class Utils {
@@ -33,26 +35,11 @@ public class Utils {
     }
 
     public static byte[] integerToByteArray(int i) {
-        return new byte[] {
-                (byte) (i >> 24),
-                (byte) (i >> 16),
-                (byte) (i >> 8),
-                (byte) i
-        };
+        return ByteBuffer.allocate(4).putInt(i).array();
     }
 
     public static byte[] bigintToByteArray(long i) {
-        return new byte[] {
-                (byte) (i >> 64),
-                (byte) (i >> 56),
-                (byte) (i >> 48),
-                (byte) (i >> 40),
-                (byte) (i >> 32),
-                (byte) (i >> 24),
-                (byte) (i >> 16),
-                (byte) (i >> 8),
-                (byte) i
-        };
+        return ByteBuffer.allocate(8).putLong(i).array();
     }
 
     public static byte[] stringToByteArray(String s) {
@@ -60,32 +47,24 @@ public class Utils {
     }
 
     public static byte[] shortToByteArray(short i) {
-        return new byte[] {
-                (byte) (i >> 8),
-                (byte) i
-        };
+        return ByteBuffer.allocate(2).putShort(i).array();
     }
 
     public static byte[] tinyintToByteArray(byte i) {
-        return new byte[] { i };
+        return ByteBuffer.allocate(1).put(i).array();
     }
 
-    // TODO
     public static byte[] doubleToByteArray(double i) {
-        return new byte[] {};
+        return ByteBuffer.allocate(8).putDouble(i).array();
     }
 
-    // TODO
-    public static byte[] floatToByteArray(double i) {
-        return new byte[] {};
+    public static byte[] floatToByteArray(float i) {
+        return ByteBuffer.allocate(4).putFloat(i).array();
     }
 
     public static byte[] prepend(byte[] arr, int i) {
         byte[] byteArray = new byte[arr.length + 4];
-        byteArray[0] = (byte) (i >> 24);
-        byteArray[1] = (byte) (i >> 16);
-        byteArray[2] = (byte) (i >> 8);
-        byteArray[3] = (byte) i;
+        ByteBuffer.wrap(byteArray).putInt(0, i);
         int index = 4;
         for (byte b : arr) {
             byteArray[index++] = b;
@@ -105,8 +84,7 @@ public class Utils {
 
     public static byte[] prepend(byte[] arr, short i) {
         byte[] byteArray = new byte[arr.length + 2];
-        byteArray[0] = (byte) (i >> 8);
-        byteArray[1] = (byte) i;
+        ByteBuffer.wrap(byteArray).putShort(0, i);
         int index = 2;
         for (byte b : arr) {
             byteArray[index++] = b;

@@ -1,6 +1,7 @@
 package com.davisbase.models;
 
 public enum DataType {
+    NULL((byte) 0x00),
     TINYINT((byte) 0x01),
     SMALLINT((byte) 0x02),
     INT((byte) 0x03),
@@ -29,7 +30,7 @@ public enum DataType {
                 return dataType;
             }
         }
-        return null; // null is returned if nothing matches
+        return NULL; // NULL is returned if nothing matches
     }
 
     public static DataType getEnum(byte dataType) {
@@ -41,6 +42,7 @@ public enum DataType {
         return TEXT;
     }
 
+    // TODO implement this for other data types
     public static Object parseData(String value, DataType dataType) {
         try {
             switch (dataType) {

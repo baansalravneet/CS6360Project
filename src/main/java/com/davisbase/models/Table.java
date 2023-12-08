@@ -3,6 +3,7 @@ package com.davisbase.models;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,10 +114,8 @@ public class Table extends DatabaseFile {
                     typeIndex += 1;
                     break;
                 case INT:
-                    result.add((int)((record[valueIndex++] & 0xFF) << 24 |
-                    (record[valueIndex++] & 0xFF) << 16 |
-                    (record[valueIndex++] & 0xFF) << 8 |
-                    (record[valueIndex++] & 0xFF)));
+                    result.add((int) ByteBuffer.wrap(record).getInt(valueIndex));
+                    valueIndex += 4;
                     typeIndex += 1;
                     break;
                 case TEXT:
@@ -128,6 +127,27 @@ public class Table extends DatabaseFile {
                     result.add(sb.toString());
                     typeIndex++;
                     break;
+                case DOUBLE:
+                    result.add((double) ByteBuffer.wrap(record).getDouble(valueIndex));
+                    valueIndex += 8;
+                    typeIndex++;
+                    break;
+                case BIGINT:
+                    result.add((long) ByteBuffer.wrap(record).getLong(valueIndex));
+                    valueIndex += 8;
+                    typeIndex++;
+                    break;
+                case SMALLINT:
+                    result.add((short) ByteBuffer.wrap(record).getShort(valueIndex));
+                    valueIndex += 2;
+                    typeIndex++;
+                    break;
+                case FLOAT:
+                    result.add((float) ByteBuffer.wrap(record).getFloat(valueIndex));
+                    valueIndex += 4;
+                    typeIndex++;
+                    break;
+                // TODO: implement for other data types
                 default:
                     break;
             }
@@ -196,24 +216,15 @@ public class Table extends DatabaseFile {
     }
 
     private static int getLeftChildPageNumberFromCell(byte[] cell) {
-        return (cell[0] & 0xFF) << 24 |
-                (cell[1] & 0xFF) << 16 |
-                (cell[2] & 0xFF) << 8 |
-                (cell[4] & 0xFF);
+        return ByteBuffer.wrap(cell).getInt(0);
     }
 
     private static int getRowIdFromInteriorCell(byte[] cell) {
-        return (cell[4] & 0xFF) << 24 |
-                (cell[5] & 0xFF) << 16 |
-                (cell[6] & 0xFF) << 8 |
-                (cell[7] & 0xFF);
+        return ByteBuffer.wrap(cell).getInt(4);
     }
 
     private static int getRowIdFromLeafCell(byte[] cell) {
-        return (cell[2] & 0xFF) << 24 |
-                (cell[3] & 0xFF) << 16 |
-                (cell[4] & 0xFF) << 8 |
-                (cell[5] & 0xFF);
+        return ByteBuffer.wrap(cell).getInt(2);
     }
 
     private byte[] getInteriorCellByCellNumber(short page, short cellNumber) throws IOException {
