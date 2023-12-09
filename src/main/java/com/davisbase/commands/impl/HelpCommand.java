@@ -19,8 +19,6 @@ public class HelpCommand extends Command {
         return new HelpOutput(getHelpString());
     }
 
-    // TODO: Complete this. Ideally, maintain a txt file somewhere
-    // in the repo and dump that file on screen.
     public String getHelpString() {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader("resources/help.txt"))) {

@@ -39,27 +39,19 @@ public class Index extends DatabaseFile {
 
     public void addIndex(DataType datatype, int rowId, Object value) throws IOException {
         // TODO check if the datatype is correct for this index file
-        switch (datatype) {
-            case INT:
-                addIndex(rowId, (Integer) value);
-            default:
-        }
-    }
-
-    private void addIndex(int rowId, Integer value) throws IOException {
         short rootPage = getRootPageNumber();
-        short pageToInsert = getPageToInsertIndex(rootPage, value);
+        short pageToInsert = getPageToInsertIndex(rootPage, value, datatype);
         byte[] cell;
         if (getPageType(pageToInsert) == LEAF_PAGE_TYPE) {
-            cell = getIndexCellForLeaf(rowId, value);
+            cell = getIndexCellForLeaf(rowId, value, datatype);
         } else {
             // TODO implement for interior page, how will you insert in interior page?
             cell = new byte[0];
         }
         writeCellInPage(cell, pageToInsert);
     }
-
-    private byte[] getIndexCellForLeaf(int rowId, Integer value) {
+    
+    private byte[] getIndexCellForLeaf(int rowId, Object value, DataType dataType) {
         int size = 2 + 1 + 1 + 4 + 4; // payload size + number of row Ids + data type + index value + row IDs
         byte[] cell = new byte[0];
         cell = Utils.prepend(cell, rowId);
@@ -93,7 +85,7 @@ public class Index extends DatabaseFile {
         this.writeShort(pageOffsetForCell);
     }
 
-    private short getPageToInsertIndex(short page, Integer value) throws IOException {
+    private short getPageToInsertIndex(short page, Object value, DataType type) throws IOException {
         if (getPageType(page) == LEAF_PAGE_TYPE) {
             return page;
         }
@@ -101,8 +93,8 @@ public class Index extends DatabaseFile {
         for (int cellNumber = 0; cellNumber < numberOfCells; cellNumber++) {
             byte[] cell = getInteriorCellByCellNumber(page, cellNumber);
             short leftChildPageNumber = (short) getLeftChildPageNumberFromCell(cell);
-            int indexValueInCell = getIndexValueInCell(cell);
-            if (indexValueInCell > value) {
+            Object indexValueInCell = getIndexValueInCell(cell, type);
+            if (Utils.compare(indexValueInCell, value, type) > 0) {
                 return leftChildPageNumber;
             }
         }
@@ -110,7 +102,7 @@ public class Index extends DatabaseFile {
         if (rightSibling == -1) {
             return page;
         }
-        return getPageToInsertIndex(rightSibling, value);
+        return getPageToInsertIndex(rightSibling, value, type);
     }
 
     private byte[] getInteriorCellByCellNumber(short page, int cellNumber) throws IOException {
@@ -128,8 +120,25 @@ public class Index extends DatabaseFile {
         return this.readShort();
     }
 
-    private int getIndexValueInCell(byte[] cell) {
-        return ByteBuffer.wrap(cell).getInt(8);
+    private static Object getIndexValueInCell(byte[] cell, DataType type) {
+        switch (type) {
+            case INT:
+                return ByteBuffer.wrap(cell).getInt(8);
+            case TINYINT:
+                return ByteBuffer.wrap(cell).get(8);
+            case FLOAT:
+                return ByteBuffer.wrap(cell).getFloat(8);
+            case BIGINT:
+                return ByteBuffer.wrap(cell).getLong(8);
+            case SMALLINT:
+                return ByteBuffer.wrap(cell).getShort(8);
+            case TEXT:
+                // TODO
+            case DOUBLE:
+                return ByteBuffer.wrap(cell).getDouble(8);
+            default:
+                throw new UnsupportedOperationException("Unimplemented");
+        }
     }
 
     private int getLeftChildPageNumberFromCell(byte[] cell) {
