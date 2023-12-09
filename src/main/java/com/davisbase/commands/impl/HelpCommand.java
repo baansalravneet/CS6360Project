@@ -5,8 +5,8 @@ import java.io.FileReader;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.HelpOutput;
+import com.davisbase.output.CommandOutput;
+import com.davisbase.output.impl.HelpOutput;
 
 public class HelpCommand extends Command {
 

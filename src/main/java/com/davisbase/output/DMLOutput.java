@@ -1,4 +1,4 @@
-package com.davisbase.commands.output;
+package com.davisbase.output;
 
 public abstract class DMLOutput extends CommandOutput {
     private final int numberOfRecords;

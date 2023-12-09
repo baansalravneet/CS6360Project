@@ -32,6 +32,7 @@ public class QueryParser extends Component {
         return input.strip();
     }
 
+    // TODO implement this for other commands
     private Command generateCommand(String input) {
         switch (CommandType.getCommandType(input)) {
             case EXIT:

@@ -1,6 +1,6 @@
-package com.davisbase.commands.output.impl;
+package com.davisbase.output.impl;
 
-import com.davisbase.commands.output.DDLOutput;
+import com.davisbase.output.DDLOutput;
 
 public class DropTableOutput extends DDLOutput {
 

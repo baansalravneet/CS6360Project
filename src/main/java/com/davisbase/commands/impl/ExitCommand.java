@@ -2,9 +2,9 @@ package com.davisbase.commands.impl;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.ExitOutput;
 import com.davisbase.config.Settings;
+import com.davisbase.output.CommandOutput;
+import com.davisbase.output.impl.ExitOutput;
 
 public class ExitCommand extends Command {
 
