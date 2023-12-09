@@ -248,13 +248,28 @@ public class Table extends DatabaseFile {
         writeCellInPage(cell, rightmostLeafPage, nextRowId);
     }
 
-    // TODO make this recursively check for overflow of parent nodes
     private void writeCellInPage(byte[] cell, short pageNumber, int rowId) throws IOException {
         if (checkOverflow(pageNumber, cell.length)) {
             if (getPageType(pageNumber) == LEAF_PAGE_TYPE) {
                 pageNumber = appendNewLeaf(pageNumber, rowId);
             } else {
-                // TODO
+                // for interior page overflow
+                // insert a interior page as sibling
+                // insert a new page as parent
+                // add this new cell to the parent page and the sibling page
+                short siblingPage = addInteriorPage();
+                short parentPage = addInteriorPage();
+                short rightChildPageNumber = getRightSibling(pageNumber);
+                setParentOfPage(pageNumber, parentPage);
+                setParentOfPage(siblingPage, parentPage);
+                setRightSibling(parentPage, siblingPage);
+                setRightSibling(pageNumber, siblingPage);
+                if (getRootPageNumber() == pageNumber) {
+                    setPageAsRoot(parentPage);
+                }
+                writeCellInPage(cell, siblingPage, rowId);
+                changeLeftChildInCell(cell, rightChildPageNumber);
+                writeCellInPage(cell, parentPage, rowId);
             }
         }
         long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
@@ -276,6 +291,10 @@ public class Table extends DatabaseFile {
         // write cell start offset
         this.seek(fileOffset + PAGE_HEADER_SIZE + 2 * numberOfRows);
         this.writeShort(pageOffsetForCell);
+    }
+
+    private void changeLeftChildInCell(byte[] cell, int pageNumber) {
+        ByteBuffer.wrap(cell).putInt(pageNumber);
     }
 
     private int getLastRowIdInPage(short pageNumber) throws IOException {
@@ -301,8 +320,6 @@ public class Table extends DatabaseFile {
         }
         setParentOfPage(newLeafPage, parentPage);
         setRightSibling(parentPage, newLeafPage);
-        // TODO handle case for overflow in the interior page (this overflow case is
-        // recursive)
         // insert cell to make "pageNumber" as the left child
         writeCellInPage(getInteriorPageCell(pageNumber, nextRowId - 1), parentPage, -1); // dummy row ID
         return newLeafPage;
@@ -320,14 +337,8 @@ public class Table extends DatabaseFile {
         setPageType(newPageNumber, INTERIOR_PAGE_TYPE);
         setEmptyPageStartContent(newPageNumber);
         setRightmostChildNull(newPageNumber);
+        setParentOfPage(newPageNumber, NULL_PARENT);
         return newPageNumber;
-    }
-
-    private boolean checkOverflow(short pageNumber, int cellLength) throws IOException {
-        short contentStart = getContentStartOffset(pageNumber);
-        short numberOfRows = getNumberOfCellsInPage(pageNumber);
-        int emptySpace = contentStart - numberOfRows * 2 - PAGE_HEADER_SIZE;
-        return emptySpace < cellLength + 2; // 2 bytes for the cell offset
     }
 
     private short addLeafPage() throws IOException {

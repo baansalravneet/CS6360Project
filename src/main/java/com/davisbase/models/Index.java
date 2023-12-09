@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import com.davisbase.config.Settings;
 import com.davisbase.utils.Utils;
 
+// TODO text data type is not handled
 public class Index extends DatabaseFile {
     private static final byte LEAF_PAGE_TYPE = 0x0A;
     private static final byte INTERIOR_PAGE_TYPE = 0x0D;
@@ -41,13 +42,8 @@ public class Index extends DatabaseFile {
         // TODO check if the datatype is correct for this index file
         short rootPage = getRootPageNumber();
         short pageToInsert = getPageToInsertIndex(rootPage, value, datatype);
-        byte[] cell;
-        if (getPageType(pageToInsert) == LEAF_PAGE_TYPE) {
-            cell = getIndexCellForLeaf(rowId, value, datatype);
-        } else {
-            // TODO implement for interior page, how will you insert in interior page?
-            cell = new byte[0];
-        }
+        // inserts only happen in the leaf
+        byte[] cell = getIndexCellForLeaf(rowId, value, datatype);
         writeCellInPage(cell, pageToInsert);
     }
     
@@ -63,7 +59,10 @@ public class Index extends DatabaseFile {
     }
 
     private void writeCellInPage(byte[] cell, short pageNumber) throws IOException {
-        // TODO check overflow
+        if (checkOverflow(pageNumber, cell.length)) {
+            // TODO implement this
+        } 
+        
         long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
         short pageOffsetForCell = getPageOffsetForNewCell(pageNumber, (short) cell.length);
 

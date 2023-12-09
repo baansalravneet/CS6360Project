@@ -120,4 +120,11 @@ public abstract class DatabaseFile extends RandomAccessFile {
         return this.readShort();
     }
 
+    protected boolean checkOverflow(short pageNumber, int cellLength) throws IOException {
+        short contentStart = getContentStartOffset(pageNumber);
+        short numberOfRows = getNumberOfCellsInPage(pageNumber);
+        int emptySpace = contentStart - numberOfRows * 2 - PAGE_HEADER_SIZE;
+        return emptySpace < cellLength + 2; // 2 bytes for the cell offset
+    }
+
 }
