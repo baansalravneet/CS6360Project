@@ -3,7 +3,11 @@ package com.davisbase.models;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.davisbase.config.Settings;
@@ -100,6 +104,69 @@ public class Table extends DatabaseFile {
     }
 
     private static List<Object> split(byte[] record) {
+        List<Object> result = new ArrayList<>();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+			ByteBuffer buffer = ByteBuffer.wrap(record);
+			int numColumns = buffer.get();
+			byte[] columnDataTypes = new byte[numColumns];
+			buffer.get(columnDataTypes);
+			for (byte type : columnDataTypes) {
+				try {
+					switch (DataType.getEnum(type)) {
+					case NULL:
+						result.add(null);
+						break;
+					case TINYINT:
+						result.add(buffer.get());
+						break;
+					case SMALLINT:
+						result.add(buffer.getShort());
+						break;
+					case INT:
+						result.add(buffer.getInt());
+						break;
+					case BIGINT:
+						result.add(buffer.getLong());
+						break;
+					case FLOAT:
+						result.add(buffer.getFloat());
+						break;
+					case DOUBLE:
+						result.add(buffer.getDouble());
+						break;
+					case YEAR:
+						result.add(buffer.get());
+						break;
+					case TIME:
+						result.add(buffer.getInt());
+						break;
+					case DATETIME:
+						result.add(sdf.format(new Date(buffer.getLong())));
+						break;
+					case DATE:
+						Date date = new Date(buffer.getLong());
+						result.add(sdf.format(date));
+						break;
+					case EMPTYTEXT:
+						result.add(sdf.format(""));
+					case TEXT:
+						int length = type - DataType.TEXT.getTypeCode();
+						byte[] stringBytes = new byte[length];
+						buffer.get(stringBytes);
+						// ASCII String
+						String asciiString = new String(stringBytes, StandardCharsets.US_ASCII);
+						result.add(asciiString);
+					}
+				} catch (Exception ex) {
+					result.add("N/A");
+				}
+			}
+		return result;
+    }
+    
+    
+    //TODO Remove after testing the split method
+    private static List<Object> splitA(byte[] record) {
         List<Object> result = new ArrayList<>();
         int numberOfColumns = (int) record[0];
         int typeIndex = 1;

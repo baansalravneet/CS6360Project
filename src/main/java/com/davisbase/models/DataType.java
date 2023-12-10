@@ -1,6 +1,7 @@
 package com.davisbase.models;
 
 public enum DataType {
+    NULL((byte) 0x00),
     TINYINT((byte) 0x01),
     SMALLINT((byte) 0x02),
     INT((byte) 0x03),
@@ -11,7 +12,8 @@ public enum DataType {
     TIME((byte) 0x09),
     DATETIME((byte) 0x0A),
     DATE((byte) 0x0B),
-    TEXT((byte) 0x0C);
+    EMPTYTEXT((byte)0x0C),
+    TEXT((byte) 0x0D);
 
     private final byte typeCode;
 
