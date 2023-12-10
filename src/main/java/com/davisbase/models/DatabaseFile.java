@@ -127,4 +127,11 @@ public abstract class DatabaseFile extends RandomAccessFile {
         return emptySpace < cellLength + 2; // 2 bytes for the cell offset
     }
 
+    protected void decrementNumberOfCellsOnPage(int pageNumber) throws IOException {
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + NUMBER_OF_CELLS_OFFSET);
+        short numberOfRows = (short)(this.readShort() - 1);
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + NUMBER_OF_CELLS_OFFSET);
+        this.writeShort(numberOfRows);
+    }
+
 }

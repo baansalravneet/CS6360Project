@@ -166,11 +166,13 @@ public class Table extends DatabaseFile {
     }
 
     private byte[] getLeafCellByCellNumber(short pageNumber, short cellNumber) throws IOException {
+        long pageOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
         short cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
-        this.seek(cellOffset);
+
+        this.seek(pageOffset + cellOffset);
         short cellSize = this.readShort();
         byte[] cell = new byte[2 + 4 + cellSize]; // payload size, rowid, payload
-        this.seek(cellOffset);
+        this.seek(pageOffset + cellOffset);
         this.read(cell);
         return cell;
     }
@@ -230,7 +232,7 @@ public class Table extends DatabaseFile {
     private byte[] getInteriorCellByCellNumber(short page, short cellNumber) throws IOException {
         short cellStartOffset = getCellStartOffsetInPage(cellNumber, page);
         byte[] cell = new byte[8]; // all interior page cells are 8 bytes
-        this.seek(cellStartOffset);
+        this.seek(Utils.getFileOffsetFromPageNumber(page) + cellStartOffset);
         this.read(cell);
         return cell;
     }
@@ -307,7 +309,6 @@ public class Table extends DatabaseFile {
 
     private short appendNewLeaf(short pageNumber, int nextRowId) throws IOException {
         short newLeafPage = addLeafPage();
-        setPageType(newLeafPage, LEAF_PAGE_TYPE);
 
         // set this new page as right sibling
         setRightSibling(pageNumber, newLeafPage);
@@ -347,6 +348,7 @@ public class Table extends DatabaseFile {
         setEmptyPageStartContent(newPage);
         // set right sibling offset
         setRightSibling(newPage, NULL_RIGHT_SIBLING);
+        setPageType(newPage, LEAF_PAGE_TYPE);
         return newPage;
     }
 

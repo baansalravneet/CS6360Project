@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import com.davisbase.config.Settings;
 import com.davisbase.utils.Utils;
@@ -44,25 +46,102 @@ public class Index extends DatabaseFile {
         short pageToInsert = getPageToInsertIndex(rootPage, value, datatype);
         // inserts only happen in the leaf
         byte[] cell = getIndexCellForLeaf(rowId, value, datatype);
-        writeCellInPage(cell, pageToInsert);
+        writeCellInPage(cell, pageToInsert, value, datatype);
     }
-    
+
     private byte[] getIndexCellForLeaf(int rowId, Object value, DataType dataType) {
         int size = 2 + 1 + 1 + 4 + 4; // payload size + number of row Ids + data type + index value + row IDs
         byte[] cell = new byte[0];
         cell = Utils.prepend(cell, rowId);
         cell = Utils.prepend(cell, value);
-        cell = Utils.prepend(cell, DataType.INT.getTypeCode());
+        cell = Utils.prepend(cell, dataType.getTypeCode());
         cell = Utils.prepend(cell, (byte) 1);
         cell = Utils.prepend(cell, (short) size);
         return cell;
     }
 
-    private void writeCellInPage(byte[] cell, short pageNumber) throws IOException {
+    private short addLeafPage() throws IOException {
+        short newPage = extendFileByOnePage();
+        // set the content start offset
+        setEmptyPageStartContent(newPage);
+        // set right sibling offset
+        setRightSibling(newPage, NULL_RIGHT_SIBLING);
+        setPageType(newPage, LEAF_PAGE_TYPE);
+        return newPage;
+    }
+
+    // TODO implement this for other values
+    private byte[] getLeafCellByCellNumber(short pageNumber, int cellNumber) throws IOException {
+        short cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
+        short cellSize = 10; // TODO fix this for other data types. Assuming 10 for now
+        byte[] cell = new byte[cellSize];
+        this.seek(Utils.getFileOffsetFromPageNumber(pageNumber) + cellOffset);
+        this.read(cell);
+        return cell;
+    }
+
+    private void removeLeafCellByCellNumber(short pageNumber, int cellNumber) throws IOException {
+        long pageOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
+        long cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
+        long cellOffsetOffset = pageOffset + PAGE_HEADER_SIZE + cellNumber * 2;
+
+        byte[] result = new byte[10]; // TODO currently assuming size 10. Fix this
+        // removing the record
+        this.seek(pageOffset + cellOffset);
+        this.write(result);
+        // removing the pointer to this record
+        this.seek(pageOffset + cellOffsetOffset);
+        this.writeShort(0);
+        decrementNumberOfCellsOnPage(pageNumber);
+        this.seek(pageOffset + getCellStartOffsetInPage(cellNumber - 1, pageNumber));
+        short newContentOffset = this.readShort();
+        setContentStartOffset(pageNumber, newContentOffset);
+    }
+
+    private Object splitLeaf(short pageA, short pageB, short parent, Object value, DataType dataType)
+            throws IOException {
+        int numberOfCells = getNumberOfCellsInPage(pageA);
+        Deque<byte[]> cells = new ArrayDeque<>();
+
+        // take out half the cells
+        for (int cellNumber = numberOfCells - 1; cellNumber >= numberOfCells / 2; cellNumber--) {
+            byte[] cell = getLeafCellByCellNumber(pageA, cellNumber);
+            cells.addFirst(cell);
+            removeLeafCellByCellNumber(pageA, cellNumber);
+        }
+        // middle cell goes to the parent
+        byte[] middleCell = cells.pollLast();
+        Object midValue = ByteBuffer.wrap(middleCell).getInt(2); // TODO implement this for other data types
+        middleCell = Utils.prepend(middleCell, pageA);
+        writeCellInPage(middleCell, parent, value, dataType);
+        // rest goes to the other page
+        while (!cells.isEmpty()) {
+            writeCellInPage(cells.pollFirst(), pageB, value, dataType);
+        }
+        return midValue;
+    }
+
+    private void writeCellInPage(byte[] cell, short pageNumber, Object value, DataType dataType) throws IOException {
         if (checkOverflow(pageNumber, cell.length)) {
-            // TODO implement this
-        } 
-        
+            if (getPageType(pageNumber) == LEAF_PAGE_TYPE) {
+                short parent = addInteriorPage();
+                short rightSibling = addLeafPage();
+                Object midValue = splitLeaf(pageNumber, rightSibling, parent, value, dataType);
+                if (getRootPageNumber() == pageNumber) {
+                    setPageAsRoot(parent);
+                }
+                setRightSibling(pageNumber, rightSibling);
+                setParentOfPage(pageNumber, parent);
+                setParentOfPage(rightSibling, parent);
+                setRightSibling(parent, rightSibling);
+                if (Utils.compare(value, midValue, dataType) > 0) {
+                    pageNumber = rightSibling;
+                }
+            } else {
+                // TODO implement this
+            }
+        }
+
         long fileOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
         short pageOffsetForCell = getPageOffsetForNewCell(pageNumber, (short) cell.length);
 
@@ -82,6 +161,15 @@ public class Index extends DatabaseFile {
         // write cell start offset
         this.seek(fileOffset + PAGE_HEADER_SIZE + 2 * numberOfRows);
         this.writeShort(pageOffsetForCell);
+    }
+
+    private short addInteriorPage() throws IOException {
+        short newPageNumber = extendFileByOnePage();
+        setPageType(newPageNumber, INTERIOR_PAGE_TYPE);
+        setEmptyPageStartContent(newPageNumber);
+        setRightmostChildNull(newPageNumber);
+        setParentOfPage(newPageNumber, NULL_PARENT);
+        return newPageNumber;
     }
 
     private short getPageToInsertIndex(short page, Object value, DataType type) throws IOException {
@@ -114,6 +202,7 @@ public class Index extends DatabaseFile {
         this.read(cell);
         return cell;
     }
+
     private short getPageOffsetByCellNumber(short page, int cellNumber) throws IOException {
         this.seek(Utils.getFileOffsetFromPageNumber(page) + PAGE_HEADER_SIZE + 2 * cellNumber);
         return this.readShort();
