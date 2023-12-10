@@ -1,4 +1,4 @@
-package com.davisbase.commands.output;
+package com.davisbase.output;
 
 public abstract class DDLOutput extends CommandOutput {
     public DDLOutput(boolean status) {

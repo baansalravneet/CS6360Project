@@ -1,9 +1,9 @@
-package com.davisbase.commands.output.impl;
+package com.davisbase.output.impl;
 
 import java.util.List;
 
-import com.davisbase.commands.output.DQLOutput;
 import com.davisbase.models.OutputRow;
+import com.davisbase.output.DQLOutput;
 
 public class ShowTablesOutput extends DQLOutput {
 

@@ -1,6 +1,6 @@
-package com.davisbase.commands.output.impl;
+package com.davisbase.output.impl;
 
-import com.davisbase.commands.output.CommandOutput;
+import com.davisbase.output.CommandOutput;
 
 public class HelpOutput extends CommandOutput {
     private String outputString;

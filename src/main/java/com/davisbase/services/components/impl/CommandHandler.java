@@ -1,7 +1,7 @@
 package com.davisbase.services.components.impl;
 
 import com.davisbase.commands.Command;
-import com.davisbase.commands.output.CommandOutput;
+import com.davisbase.output.CommandOutput;
 import com.davisbase.services.Mediator;
 import com.davisbase.services.components.Component;
 

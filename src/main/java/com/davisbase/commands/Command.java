@@ -1,6 +1,6 @@
 package com.davisbase.commands;
 
-import com.davisbase.commands.output.CommandOutput;
+import com.davisbase.output.CommandOutput;
 
 public abstract class Command {
     protected CommandContext context;

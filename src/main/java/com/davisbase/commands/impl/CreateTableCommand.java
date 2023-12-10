@@ -4,13 +4,13 @@ import java.io.IOException;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.CreateTableOutput;
 import com.davisbase.config.Database;
 import com.davisbase.models.ColumnValue;
 import com.davisbase.models.DataType;
 import com.davisbase.models.Table;
 import com.davisbase.models.TableRow;
+import com.davisbase.output.CommandOutput;
+import com.davisbase.output.impl.CreateTableOutput;
 
 public class CreateTableCommand extends Command {
 

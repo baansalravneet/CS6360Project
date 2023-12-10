@@ -1,4 +1,4 @@
-package com.davisbase.commands.output;
+package com.davisbase.output;
 
 import java.util.List;
 

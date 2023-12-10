@@ -1,6 +1,6 @@
-package com.davisbase.commands.output.impl;
+package com.davisbase.output.impl;
 
-import com.davisbase.commands.output.DMLOutput;
+import com.davisbase.output.DMLOutput;
 
 public class UpdateOutput extends DMLOutput {
 

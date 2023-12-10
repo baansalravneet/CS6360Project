@@ -2,8 +2,8 @@ package com.davisbase.commands.impl;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.InvalidCommandOutput;
+import com.davisbase.output.CommandOutput;
+import com.davisbase.output.impl.InvalidCommandOutput;
 
 public class InvalidCommand extends Command {
 

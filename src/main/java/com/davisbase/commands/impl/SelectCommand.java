@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.davisbase.commands.Command;
 import com.davisbase.commands.CommandContext;
-import com.davisbase.commands.output.CommandOutput;
-import com.davisbase.commands.output.impl.InvalidCommandOutput;
-import com.davisbase.commands.output.impl.SelectOutput;
 import com.davisbase.config.Settings;
 import com.davisbase.models.OutputRow;
 import com.davisbase.models.Table;
+import com.davisbase.output.CommandOutput;
+import com.davisbase.output.impl.InvalidCommandOutput;
+import com.davisbase.output.impl.SelectOutput;
 
 public class SelectCommand extends Command {
 
