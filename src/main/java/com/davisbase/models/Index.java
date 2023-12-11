@@ -84,8 +84,8 @@ public class Index extends DatabaseFile {
         long pageOffset = Utils.getFileOffsetFromPageNumber(pageNumber);
         long cellOffset = getCellStartOffsetInPage(cellNumber, pageNumber);
         long cellOffsetOffset = pageOffset + PAGE_HEADER_SIZE + cellNumber * 2;
-
-        byte[] result = new byte[10]; // TODO currently assuming size 10. Fix this
+        // TODO currently assuming size 10 for 1 row and int value index. Fix this
+        byte[] result = new byte[10];
         // removing the record
         this.seek(pageOffset + cellOffset);
         this.write(result);
