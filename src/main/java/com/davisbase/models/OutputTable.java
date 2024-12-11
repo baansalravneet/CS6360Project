@@ -1,6 +1,10 @@
 package com.davisbase.models;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class OutputTable {
@@ -42,7 +46,20 @@ public class OutputTable {
             columnsToPrint = columnNames;
         }
         this.printColumns(columnsToPrint);
-    }
+		// Print records with specified columns
+		for (List<Object> record : records) {
+			for (String column : columnsToPrint) {
+				int columnIndex = columnNames.indexOf(column);
+				if (columnIndex != -1) {
+					System.out.print(record.get(columnIndex) + "\t");
+				} else {
+					// Handle the case where the specified column is not found
+					System.out.print("N/A\t");
+				}
+			}
+			System.out.println();
+		}
+	}
 
     private void printColumns(List<String> columnsToPrint) {
         System.out.println(tableName);
@@ -67,4 +84,5 @@ public class OutputTable {
             System.out.println();
         }
     }
+    
 }
